@@ -1,0 +1,1427 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Claude Codeの設定（CLAUDE.md・Rules・Plugins・Skills・MCP・Subagents・Hooks・Permissions・スラッシュコマンド）を1つのHTMLにまとめたガイド。">
+  <title>Claude Code設定ガイド（案B：サイドバー切り替え型）</title>
+  <style>
+
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}a:focus-visible{outline:3px solid #e88343;outline-offset:3px}main{max-width:1120px;margin:auto;padding:38px 22px 90px}.meta{font-size:.84rem;margin:0 0 23px}.grid{display:grid;gap:16px}article h2{margin:0;font-size:1.3rem}article h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 6px}article ul{list-style:none;padding:0;margin:0}article li+li{margin-top:5px}article a{text-underline-offset:3px;overflow-wrap:anywhere}.maker{margin:1px 0 14px;font-size:.83rem}.note{margin:20px 0 0;padding-top:14px;font-size:.85rem}.guide{margin-top:26px;padding:20px 24px}.guide h2{font-size:1rem;margin:0 0 5px}.guide p{margin:0;font-size:.9rem}footer{font-size:.82rem;margin-top:26px}@media(max-width:740px){main{padding:30px 16px 70px}}
+
+      :root{color:#202933;background:#fff}a{color:#125a78}a:hover{color:#b55029}
+      header.hero{padding:58px max(22px,calc((100vw - 1120px)/2)) 48px;background:#f5f6f4;border-bottom:1px solid #dfe4e2}.eyebrow{font:700 .73rem ui-monospace,Consolas,monospace;letter-spacing:.1em;color:#277477}h1{font-size:clamp(2.1rem,4.6vw,3.3rem);letter-spacing:-.05em;line-height:1.28;max-width:19em;margin:16px 0 10px}.hero p{max-width:48em;color:#52616b;margin:0}
+      main{max-width:1180px}.meta{color:#697985}.grid{grid-template-columns:1fr;gap:0;border-top:2px solid #2a5c68}article{display:grid;grid-template-columns:210px repeat(2,minmax(0,1fr));gap:0 26px;padding:22px 6px;border-bottom:1px solid #dce3e4;background:#fff}article h2{grid-column:1;grid-row:1;font-size:1.13rem}article .maker{grid-column:1;grid-row:2;color:#75828a;margin:0}article h3{margin:0 0 7px;color:#526874}article h3:nth-of-type(1),article h3:nth-of-type(1)+ul{grid-column:2}article h3:nth-of-type(2),article h3:nth-of-type(2)+ul{grid-column:3}article h3:nth-of-type(3),article h3:nth-of-type(3)+ul{grid-column:4}article h3:nth-of-type(1),article h3:nth-of-type(2),article h3:nth-of-type(3){grid-row:1}article h3:nth-of-type(1)+ul,article h3:nth-of-type(2)+ul,article h3:nth-of-type(3)+ul{grid-row:2}article .note{grid-column:2 / 4;grid-row:3;border:0;padding:0;margin:12px 0 0;color:#66747e}article li a{font-size:.89rem}.guide{border-top:2px solid #2a5c68;background:#f2f5f5}.guide p,footer{color:#60717b}
+      article h2{display:flex;align-items:center}
+      code{font-family:ui-monospace,Consolas,monospace;font-size:.84em;background:#eef2f2;border-radius:4px;padding:1px 5px;overflow-wrap:anywhere}article h2 code{font-size:1em;background:none;padding:0;color:#1d4954}article li{font-size:.89rem}
+      article pre{margin:0;max-width:100%;overflow-x:auto;padding:10px 12px;background:#f2f5f5;border-left:3px solid #2a5c68;font:.8rem/1.65 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#202933}
+      .section-title{font-size:1.05rem;color:#2a5c68;margin:40px 0 10px}.section-title:first-of-type{margin-top:0}
+      @media(max-width:760px){header.hero{padding:52px 18px 44px}article{grid-template-columns:1fr 1fr;gap:4px 18px;padding:22px 0}article h2{grid-column:1/3;grid-row:auto}article .maker{grid-column:1/3;grid-row:auto;margin-bottom:8px}article h3:nth-of-type(1),article h3:nth-of-type(1)+ul{grid-column:1}article h3:nth-of-type(2),article h3:nth-of-type(2)+ul{grid-column:2}article h3:nth-of-type(3),article h3:nth-of-type(3)+ul{grid-column:1/3}article h3:nth-of-type(1),article h3:nth-of-type(2),article h3:nth-of-type(3),article h3:nth-of-type(1)+ul,article h3:nth-of-type(2)+ul,article h3:nth-of-type(3)+ul{grid-row:auto}article .note{grid-column:1/3;grid-row:auto}}@media(max-width:470px){article{grid-template-columns:1fr}article h2,article .maker,article h3:nth-of-type(n),article h3:nth-of-type(n)+ul,article .note{grid-column:1}}
+
+/* ===== 配色テーマ：ネイビー＆ゴールド ===== */
+:root{--navy:#1f3a5f;--gold:#c08a1e;--gold-text:#8a6416;--text:#1c2433;--muted:#5a6577;--line:#e1e5ec;--soft:#f4f6fa;--code-bg:#f6f8fb;--chip:#eef2f8;--link:#1f4f8a;--link-hover:#a8741a}
+:root{color:var(--text);background:#fff}body{color:var(--text);background:#fff}
+a{color:var(--link)}a:hover{color:var(--link-hover)}a:focus-visible{outline-color:var(--gold)}
+header.hero{background:var(--navy);border-bottom:1px solid var(--navy)}header.hero h1{color:#fff}.hero p{color:#c9d3e3}.eyebrow{color:#e3b65a}
+.meta{color:var(--muted)}
+.section-title{color:var(--navy)}
+.grid{border-top-color:var(--navy)}
+article{border-bottom-color:var(--line)}
+article h3{color:var(--gold-text)}
+article .maker,article .note{color:var(--muted)}
+article h2 code{color:var(--navy)}
+code{background:var(--chip)}
+article pre{background:var(--code-bg);border-left-color:var(--gold)}
+.guide{background:var(--soft);border-top-color:var(--navy)}.guide p,footer{color:var(--muted)}
+
+article h2 a{text-decoration:none;color:inherit}article h2 a:hover{color:var(--link-hover);text-decoration:underline}
+
+.panel{scroll-margin-top:70px}
+.panel-head{padding:6px 0 22px;margin-bottom:26px;border-bottom:1px solid var(--line)}
+.panel-head .eyebrow{color:var(--gold-text);margin:0}
+.panel-title{font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.03em;line-height:1.3;margin:8px 0 6px;color:var(--navy)}
+.panel-head .lead{margin:0;color:var(--muted);max-width:48em}
+.panel [id]{scroll-margin-top:80px}
+
+.layout{max-width:1240px;margin:auto;padding:30px 22px 90px;display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:36px;align-items:start}
+.layout>.sidebar{grid-column:2;grid-row:1}.layout>main{grid-column:1;grid-row:1}
+.sidebar{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:14px 10px}
+.sidebar p{margin:14px 8px 4px;font-size:.74rem;letter-spacing:.06em;font-weight:700;color:var(--gold-text)}.sidebar p:first-child{margin-top:0}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar a{display:block;padding:6px 10px;border-radius:6px;color:var(--text);text-decoration:none;font-size:.9rem;border-left:3px solid transparent}
+.sidebar a:hover{background:#e7ecf4}
+.sidebar a[aria-current="page"]{background:var(--navy);color:#fff;border-left-color:#e3b65a;font-weight:700}
+main{min-width:0;padding-top:0}
+@media(max-width:860px){.layout{grid-template-columns:minmax(0,1fr);gap:14px;padding:20px 16px 70px}.layout>.sidebar,.layout>main{grid-column:1;grid-row:auto}.sidebar{position:static;max-height:none;display:flex;flex-wrap:wrap;gap:4px;padding:10px}.sidebar p{display:none}.sidebar ul{display:contents}.sidebar a{padding:5px 10px;font-size:.84rem;border:1px solid var(--line);background:#fff}}
+.panel .grid{grid-template-columns:minmax(0,1fr)}
+.panel article{display:block;padding:26px 4px;border-bottom:1px solid var(--line);background:#fff}
+.panel article h2{display:block;font-size:1.2rem;margin:0;color:var(--text)}
+.panel article .maker{margin:4px 0 4px;font-size:.83rem;color:var(--muted)}
+.panel article h3{margin:16px 0 6px;font-size:.78rem;letter-spacing:.08em;color:var(--gold-text)}
+.panel article ul{list-style:disc;padding-left:1.3em;margin:0}
+.panel article li{font-size:.93rem}.panel article li+li{margin-top:4px}
+.panel article li::marker{color:var(--gold)}
+.panel article ul.code-list,.panel article ul:has(pre){list-style:none;padding-left:0}
+.panel article pre{white-space:pre;overflow-x:auto;max-width:100%;margin:0;padding:16px 18px;font:.84rem/1.7 ui-monospace,Consolas,monospace;background:var(--code-bg);color:var(--text);border:1px solid #d6dde8;border-left:1px solid #d6dde8;border-radius:8px}
+.codebox{position:relative}
+.codebox .copy{position:absolute;top:8px;right:8px;font-size:.75rem;color:var(--navy);background:#fff;border:1px solid #d6dde8;border-radius:5px;padding:2px 9px;cursor:pointer}
+.codebox .copy:hover{background:var(--chip)}.codebox .copy:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.panel article .note{display:block;margin:14px 0 0;padding:10px 14px;font-size:.88rem;color:#5b4a26;background:#fdf6e7;border:0;border-left:3px solid var(--gold);border-radius:0 6px 6px 0}
+@media(max-width:760px){.panel article{padding:22px 0}}
+</style>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">CLAUDE CODE / ALL-IN-ONE GUIDE</p>
+    <h1>Claude Code設定ガイド</h1>
+    <p>確認日：2026年10月2日</p>
+  </header>
+  <div class="layout" id="content">
+    <nav class="sidebar" aria-label="ページの切り替え">
+      <p>はじめに</p><ul><li><a href="#p-index" data-target="p-index">目次</a></li></ul>
+      <p>指示・ルール</p><ul><li><a href="#p-claude-md" data-target="p-claude-md">CLAUDE.md</a></li><li><a href="#p-rules" data-target="p-rules">Rules</a></li></ul>
+      <p>機能拡張</p><ul><li><a href="#p-plugins" data-target="p-plugins">Plugins</a></li><li><a href="#p-skills" data-target="p-skills">Skills</a></li><li><a href="#p-mcp" data-target="p-mcp">MCP</a></li><li><a href="#p-subagents" data-target="p-subagents">Subagents</a></li></ul>
+      <p>自動化・制御</p><ul><li><a href="#p-hooks" data-target="p-hooks">Hooks</a></li><li><a href="#p-permissions" data-target="p-permissions">Permissions</a></li></ul>
+      <p>操作</p><ul><li><a href="#p-slash-commands" data-target="p-slash-commands">スラッシュコマンド</a></li></ul>
+    </nav>
+    <main>
+    <section class="panel" id="p-index" aria-labelledby="t-index">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / INDEX</p><h2 class="panel-title" id="t-index">Claude Code設定ガイド 目次</h2></div>
+
+
+    <h2 class="section-title" id="index--by-feature">機能から探す</h2>
+
+    <h2 class="section-title">指示・ルール：Claudeに守らせる前提を書く</h2>
+    <div class="grid">
+      <article>
+        <h2><a href="#p-claude-md">CLAUDE.md一覧</a></h2><p class="maker">CLAUDE.md · 9パターン</p>
+        <h3>わかること</h3><ul><li>CLAUDE.mdの書き方の型</li><li>ユーザー用・プロジェクト用・フォルダ階層ごとの使い分け</li></ul>
+        <h3>主な掲載内容</h3><ul><li>ユーザー用・プロジェクト用テンプレート</li><li>AIレビューワークフロー用・定期実行用</li><li>業務ワークスペース用（フォルダの地図）</li></ul>
+        <p class="note">記載例をそのまま写して使えます。最初に読むページとしておすすめです。</p>
+      </article>
+      <article>
+        <h2><a href="#p-rules">Rules一覧</a></h2><p class="maker">Rules · 14件</p>
+        <h3>わかること</h3><ul><li>CLAUDE.mdと.claude/rules/に書くべきルール</li><li>安全に運用するためのルール</li></ul>
+        <h3>主な掲載内容</h3><ul><li>行動指針・開発ルール・完了条件</li><li>security.md・coding-style.md・architecture.md など</li><li>危険操作・コンテキスト管理・AIレビュー対応</li></ul>
+        <p class="note">CLAUDE.mdを「目次」、rulesを「詳細仕様書」として分ける考え方を紹介しています。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">機能拡張：Claude Codeにできることを増やす</h2>
+    <div class="grid">
+      <article>
+        <h2><a href="#p-plugins">プラグイン一覧</a></h2><p class="maker">Plugins · 8件</p>
+        <h3>わかること</h3><ul><li>/pluginで導入できるプラグイン</li><li>公式・サードパーティ・自作の違い</li></ul>
+        <h3>主な掲載内容</h3><ul><li>codex-plugin-cc・document-skills・skill-creator</li><li>ui-ux-pro-max・Everything Claude Code</li><li>GitHub管理の自作プラグイン</li></ul>
+        <p class="note">コマンド・Hooks・Skillsをまとめて導入したいときに見るページです。</p>
+      </article>
+      <article>
+        <h2><a href="#p-skills">Skills一覧</a></h2><p class="maker">Skills · 17件</p>
+        <h3>わかること</h3><ul><li>導入したい公式・公開Skills</li><li>自分で作っておきたいSkills</li></ul>
+        <h3>主な掲載内容</h3><ul><li>Find Skills・Skill Creator・document-skills</li><li>UI UX Pro Max・grill-me・Remotion</li><li>メモ・デザイン・デプロイなどの自作Skill</li></ul>
+        <p class="note">繰り返す作業手順を再利用したいときに見るページです。</p>
+      </article>
+      <article>
+        <h2><a href="#p-mcp">MCP一覧</a></h2><p class="maker">MCP · 22件</p>
+        <h3>わかること</h3><ul><li>用途別のMCPサーバー</li><li>導入時の注意点</li></ul>
+        <h3>主な掲載内容</h3><ul><li>GitHub・Serena・Context7</li><li>Supabase・Stripe・Playwright</li><li>Notion・Figma・AWS・Cloudflare</li></ul>
+        <p class="note">外部サービスやブラウザ、DBと連携したいときに見るページです。</p>
+      </article>
+      <article>
+        <h2><a href="#p-subagents">Subagents一覧</a></h2><p class="maker">Subagents · 12件</p>
+        <h3>わかること</h3><ul><li>役割ごとのサブエージェントの作り方</li><li>チームで分業させる構成例</li></ul>
+        <h3>主な掲載内容</h3><ul><li>調査・プランナー・アーキテクト・レビュアー</li><li>codex:codex-rescue</li><li>仮想ホームページ制作会社のチーム構成</li></ul>
+        <p class="note">作業を分担させて、メインのコンテキストを節約したいときに見るページです。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">自動化・制御：動きを強制し、範囲を決める</h2>
+    <div class="grid">
+      <article>
+        <h2><a href="#p-hooks">Hooks一覧</a></h2><p class="maker">Hooks · 13件</p>
+        <h3>わかること</h3><ul><li>イベントに合わせて処理を自動実行する方法</li><li>Hooksの設定場所と注意点</li></ul>
+        <h3>主な掲載内容</h3><ul><li>編集後の整形・Lint・.envの編集ブロック</li><li>commit後の自動レビュー・Stop Hook</li><li>通知・記録系のHooks、Claude Mods</li></ul>
+        <p class="note">ルールでは止めきれない操作を、確実に実行・ブロックしたいときに見るページです。</p>
+      </article>
+      <article>
+        <h2><a href="#p-permissions">Permissions設定一覧</a></h2><p class="maker">Permissions · 15件</p>
+        <h3>わかること</h3><ul><li>実行できる操作の範囲の決め方</li><li>deny・ask・allowの使い分け</li></ul>
+        <h3>主な掲載内容</h3><ul><li>権限モード（default・plan・acceptEdits など）</li><li>機密ファイル・破壊的コマンドのdeny</li><li>そのまま使える settings.json の例</li></ul>
+        <p class="note">Claude Codeを安全に使うための土台となる設定です。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">操作：日々の作業で使うコマンド</h2>
+    <div class="grid">
+      <article>
+        <h2><a href="#p-slash-commands">スラッシュコマンド一覧</a></h2><p class="maker">Slash Commands · 17件</p>
+        <h3>わかること</h3><ul><li>よく使う標準コマンドの用途</li><li>プラグインで追加されるコマンド</li></ul>
+        <h3>主な掲載内容</h3><ul><li>/compact・/context・/clear・/memory</li><li>/plugin・/skills・/hooks・/agents</li><li>/goal・/design・/codex:*</li></ul>
+        <p class="note">コンテキスト管理や設定確認など、毎日の操作で使うコマンドをまとめています。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title" id="index--by-use">用途から探す</h2>
+    <div class="grid">
+      <article>
+        <h2>はじめて導入する</h2><p class="maker">初期設定</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-claude-md">CLAUDE.md一覧</a></li><li><a href="#p-permissions">Permissions設定一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-slash-commands">スラッシュコマンド一覧</a></li><li><a href="#p-rules">Rules一覧</a></li></ul>
+        <p class="note">まずCLAUDE.mdで前提を伝え、Permissionsで権限を最小限にしてから使い始めます。</p>
+      </article>
+      <article>
+        <h2>安全に使う</h2><p class="maker">セキュリティ</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-permissions">Permissions設定一覧</a></li><li><a href="#p-hooks">Hooks一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-rules">Rules一覧</a></li><li><a href="#p-claude-md">CLAUDE.md一覧</a></li></ul>
+        <p class="note">Permissionsで範囲を決め、Hooksで確実に止め、Rulesで方針を伝える、という3段構えで守ります。</p>
+      </article>
+      <article>
+        <h2>開発の品質を上げる</h2><p class="maker">品質・レビュー</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-rules">Rules一覧</a></li><li><a href="#p-hooks">Hooks一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-skills">Skills一覧</a></li><li><a href="#p-plugins">プラグイン一覧</a></li><li><a href="#p-subagents">Subagents一覧</a></li></ul>
+        <p class="note">規約・テスト方針をルールにし、整形・Lint・レビューをHooksやプラグインで自動化します。</p>
+      </article>
+      <article>
+        <h2>外部サービスと連携する</h2><p class="maker">連携</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-mcp">MCP一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-plugins">プラグイン一覧</a></li><li><a href="#p-permissions">Permissions設定一覧</a></li></ul>
+        <p class="note">書き込みができるMCPは、Permissionsでaskにするなど権限を絞って使います。</p>
+      </article>
+      <article>
+        <h2>作業を分担・自動化する</h2><p class="maker">自動化</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-subagents">Subagents一覧</a></li><li><a href="#p-skills">Skills一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-hooks">Hooks一覧</a></li><li><a href="#p-claude-md">CLAUDE.md一覧</a></li><li><a href="#p-permissions">Permissions設定一覧</a></li></ul>
+        <p class="note">人が都度確認しない運用ほど、権限設定と結果の確認方法を先に決めておきます。</p>
+      </article>
+      <article>
+        <h2>UI・デザインを作る</h2><p class="maker">デザイン</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-skills">Skills一覧</a></li><li><a href="#p-slash-commands">スラッシュコマンド一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-mcp">MCP一覧</a></li><li><a href="#p-plugins">プラグイン一覧</a></li></ul>
+        <p class="note">UI UX Pro Max、/design・/design-sync、Figma MCPなどを組み合わせます。</p>
+      </article>
+      <article>
+        <h2>コンテキストを節約する</h2><p class="maker">効率化</p>
+        <h3>まず見るページ</h3><ul><li><a href="#p-slash-commands">スラッシュコマンド一覧</a></li><li><a href="#p-claude-md">CLAUDE.md一覧</a></li></ul>
+        <h3>あわせて見るページ</h3><ul><li><a href="#p-subagents">Subagents一覧</a></li><li><a href="#p-skills">Skills一覧</a></li></ul>
+        <p class="note">/compact・/clear、短いCLAUDE.md、サブエージェントへの委任、必要なときだけ読み込むSkillsを使い分けます。</p>
+      </article>
+    </div>
+
+    <aside class="guide" id="index--order" aria-labelledby="index--reading-note"><h2 id="index--reading-note">の読み順</h2><p>1. <a href="#p-claude-md">CLAUDE.md一覧</a> → 2. <a href="#p-permissions">Permissions設定一覧</a> → 3. <a href="#p-slash-commands">スラッシュコマンド一覧</a> → 4. <a href="#p-rules">Rules一覧</a> → 5. <a href="#p-skills">Skills一覧</a> → 6. <a href="#p-mcp">MCP一覧</a> → 7. <a href="#p-plugins">プラグイン一覧</a> → 8. <a href="#p-hooks">Hooks一覧</a> → 9. <a href="#p-subagents">Subagents一覧</a></p><p style="margin-top:8px">まず「指示」と「権限」を整えてから、「拡張」と「自動化」を少しずつ足していくと、安全に使いこなせるようになります。</p></aside>
+    <footer>各ページの内容は2026年10月2日時点のものです。機能や設定方法は変更される場合があります。</footer>
+  
+    </section>
+    <section class="panel" id="p-claude-md" aria-labelledby="t-claude-md">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / CLAUDE.MD</p><h2 class="panel-title" id="t-claude-md">Claude CodeのCLAUDE.md一覧</h2></div>
+
+
+    <h2 class="section-title">まず用意したいCLAUDE.md</h2>
+    <div class="grid">
+      <article>
+        <h2>ユーザー用CLAUDE.md</h2><p class="maker"><code>~/.claude/CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># CLAUDE.md
+回答は日本語で行う
+Markdownで出力する
+Mermaid図を積極的に利用する
+コードにはコメントを書く
+入力が曖昧な場合はAsk User Questionを利用する</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>全プロジェクトに共通する回答スタイルを書く</li><li>毎回プロンプトに書いていた指示をまとめる</li></ul>
+        <p class="note">すべてのプロジェクトで読み込まれます。プロジェクト側にCLAUDE.mdがなくても影響するため、挙動がおかしいときは<code>/memory</code>で確認してください。</p>
+      </article>
+      <article>
+        <h2>プロジェクト用の基本テンプレート</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># プロジェクト概要（What）
+React + TypeScriptによるWebアプリケーション
+
+# 目的（Why）
+業務効率化のための社内ツール
+
+# 行動指針（How）
+- 結論から回答する
+- 前置きを書かない
+- 不明点は推測せず確認する
+
+# 検証方法
+- コード変更後はテストを実行する
+- Lintと型チェックを行う
+
+# 完了条件
+- テスト・Lint・型チェックがすべて成功している</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>What・Why・Howの3つを軸に書く</li><li>検証方法と完了条件を必ず入れる</li></ul>
+        <p class="note">特に重要なのはHowです。回答スタイル・作業ルール・使用ツール・禁止事項・出力ルールを書くと、AIの振る舞いが安定します。</p>
+      </article>
+      <article>
+        <h2>開発プロジェクト用</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre>## 技術スタック
+Backend: Python / FastAPI
+Frontend: React / TypeScript
+Database: PostgreSQL
+
+## 開発ルール
+- 必ず既存設計を確認してから変更する
+- 勝手にアーキテクチャ変更しない
+- テストコードを必ず追加する
+
+## 重要ドキュメント
+Architecture: docs/architecture/
+Requirements: docs/requirements/</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>技術スタックと重要ドキュメントの場所を明記</li><li>アーキテクチャ・コーディング規約・命名規則・テスト方針も候補</li></ul>
+        <p class="note">AIが一貫した実装を行えるよう、プロジェクト固有の前提を明文化します。</p>
+      </article>
+      <article>
+        <h2>目次型CLAUDE.md</h2><p class="maker"><code>CLAUDE.md</code> ＋ <code>.claude/rules/</code></p>
+        <h3>記載例</h3><ul><li><pre># CLAUDE.md
+## 詳細ルール
+- セキュリティ: .claude/rules/security.md
+- コーディング規約: .claude/rules/coding-style.md
+- アーキテクチャ: .claude/rules/architecture.md
+## 作業手順
+- .claude/skills/ 配下のSkillを使う</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>大規模案件で1つの巨大なCLAUDE.mdを作らない</li><li>CLAUDE.mdを「目次」、rules・skillsを「詳細仕様書」にする</li></ul>
+        <p class="note">必要なときだけ詳細を読ませる（Progressive Disclosure）ことで、コンテキストを節約できます。詳細ルールの例は<a href="#p-rules">Rules一覧</a>を参照してください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">ワークフローを制御するCLAUDE.md</h2>
+    <div class="grid">
+      <article>
+        <h2>AIレビューワークフロー用（司令塔型）</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># AI開発ワークフロー
+## 基本方針
+Claude Codeは実装担当とする。
+Codexは独立レビュー担当とする。
+
+## 開発工程
+1. 要件を確認する。
+2. coding Skillに従って実装する。
+3. testing Skillに従ってテストする。
+4. codex-review Skillに従ってCodexレビューを実施する。
+5. 修正必須の指摘を修正し、テストを再実行する。
+
+## 完了条件
+- 必須テストが成功している
+- Codexレビューを実施している
+- Critical / High相当の未対応指摘がない</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>詳細なルール集ではなく、工程全体の司令塔として使う</li><li>個々の手順はSkillsに分ける</li></ul>
+        <p class="note">レビューの手順は<code>/codex:review --wait</code>などのコマンドで具体的に指定します。commit後の強制実行が必要になったらHooksを追加します。</p>
+      </article>
+      <article>
+        <h2>定期実行用</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># Project Rules
+## Code Review
+レビュー時には以下を確認すること。
+- バグ
+- セキュリティ
+- パフォーマンス
+- 可読性
+- テスト不足
+
+## Report
+レビュー結果はMarkdown形式で出力すること。
+出力先: reports/</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>cron・タスクスケジューラ・GitHub Actionsから起動する場合に使う</li><li>起動側は<code>claude -p "定期コードレビューを実行してください"</code>程度に短くできる</li></ul>
+        <p class="note">毎回巨大なプロンプトを書かずに済み、共通ルールを1か所で管理できます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">業務ワークスペース用のCLAUDE.md</h2>
+    <div class="grid">
+      <article>
+        <h2>ルート：フォルダの地図</h2><p class="maker"><code>workspace/CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># フォルダの地図
+- clients/ : 顧客ごとの情報
+  取引先について聞かれたら、
+  まず clients/index.md を読むこと
+- mail/  : メールの下書き
+- notes/ : メモ
+
+ファイルを読む際はReadツールを使うこと</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>案件固有のルールは書かず、どこに何があるかだけを書く</li><li>目次ファイル（index.md）へ誘導する</li></ul>
+        <p class="note">起動時に毎回読み込まれるため、太らせるとトークン消費が増え、精度も落ちます。オートモードではBashでファイルを読むとサブディレクトリのCLAUDE.mdが読まれないことがあるため、Readツールの使用を明記します。</p>
+      </article>
+      <article>
+        <h2>サブディレクトリ：共通ルール</h2><p class="maker"><code>workspace/clients/CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># 全顧客共通のルール
+- 顧客情報は外部に出さない
+- 返信文は提案にとどめ、送信は人間が行う
+- 進捗は各顧客の profile.md に記録する</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>そのフォルダを触るときだけ必要な前提を書く</li></ul>
+        <p class="note">配下のファイルを読んだタイミングで読み込まれ、上位階層のCLAUDE.mdも一緒に含まれます。</p>
+      </article>
+      <article>
+        <h2>サブディレクトリ：顧客ごとの前提</h2><p class="maker"><code>workspace/clients/取引先A/CLAUDE.md</code></p>
+        <h3>記載例</h3><ul><li><pre># 取引先Aの前提
+- 担当者の呼び方: 〇〇様
+- 文体: カジュアルで構わない
+- これまでの経緯: profile.md を参照
+- 禁止事項: 価格の提示は事前確認が必要</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>担当者の呼び方・会社の呼び方・取引条件・経緯・禁止事項を書く</li><li>進捗や議事録の要約は<code>profile.md</code>に分ける</li></ul>
+        <p class="note">顧客ごとにトーンを切り替えられます。頻繁に更新される情報はCLAUDE.mdではなく別ファイルで管理します。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="claude-md--reading-note"><h2 id="claude-md--reading-note">CLAUDE.mdの読み込みと書き方の基本</h2><p>起動フォルダ直下のCLAUDE.mdは起動時に、サブディレクトリのCLAUDE.mdはそのフォルダのファイルを読んだタイミングで読み込まれます。ユーザー用（<code>~/.claude/CLAUDE.md</code>）とプロジェクト用は両方読み込まれるため、<code>/memory</code>で内容を確認できます。毎回読み込まれるファイルは3,000〜5,000文字程度を目安に短く保ち、READMEのコピーではなくAI向けの指示だけを書きます。一度で完成させず、AIとのやり取りで気づいた点を少しずつ反映して育ててください。</p></aside>
+    <footer>機能や読み込みの仕様は変更される場合があります。最新の挙動は公式ドキュメントで確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-rules" aria-labelledby="t-rules">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / RULES</p><h2 class="panel-title" id="t-rules">Claude CodeのRules一覧</h2></div>
+
+
+    <h2 class="section-title">CLAUDE.mdに書くルール</h2>
+    <div class="grid">
+      <article>
+        <h2>プロジェクト概要（What・Why）</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>何のプロジェクトか（例：React + TypeScriptのWebアプリ）</li><li>何のために存在するか（例：業務効率化のための社内ツール）</li><li>技術スタック・重要ドキュメントの場所</li></ul>
+        <h3>書き方のポイント</h3><ul><li>READMEのコピーではなく、AIが必ず知るべき内容だけを書く</li><li>詳細は別ファイルへの案内にとどめる</li></ul>
+        <p class="note">READMEは人向け、CLAUDE.mdはAI向けの指示書です。目的が違うので内容も分けます。</p>
+      </article>
+      <article>
+        <h2>行動指針（How）</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>結論から回答する・前置きを書かない</li><li>具体例を必ず入れる</li><li>不明点は推測せず確認する</li></ul>
+        <h3>書き方のポイント</h3><ul><li>回答スタイル・作業ルール・使用ツール・禁止事項・出力ルールに分けて書く</li></ul>
+        <p class="note">What・Why・Howの中で特に重要なのがHowです。AIの回答スタイルや作業手順をそろえられます。</p>
+      </article>
+      <article>
+        <h2>開発ルール</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>変更前に必ず既存設計を確認する</li><li>勝手にアーキテクチャを変更しない</li><li>テストコードを必ず追加する</li></ul>
+        <h3>書き方のポイント</h3><ul><li>全作業に共通する短いルールだけを書く</li><li>テーマ別の詳細は<code>.claude/rules/</code>へ分ける</li></ul>
+        <p class="note">大規模案件では、CLAUDE.mdを「目次」、rules・skillsを「詳細仕様書」として分けると管理しやすくなります。</p>
+      </article>
+      <article>
+        <h2>検証方法・完了条件</h2><p class="maker"><code>CLAUDE.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>コード変更後はテストを実行する</li><li>Lintを実行する</li><li>型チェックを行う</li></ul>
+        <h3>書き方のポイント</h3><ul><li>「何をもって完了とするか」を具体的に書く</li></ul>
+        <p class="note">完了条件をはっきりさせると、AIの作業品質が安定します。</p>
+      </article>
+      <article>
+        <h2>個人ルール</h2><p class="maker"><code>~/.claude/CLAUDE.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>回答言語（例：すべて日本語で回答する）</li><li>自分の開発スタイル</li><li>日本語のやり取りでは自然な日本語スキルを必ず読み込む</li></ul>
+        <h3>書き方のポイント</h3><ul><li>全プロジェクト共通の内容だけを書く</li></ul>
+        <p class="note">全プロジェクトに適用され、プロジェクトのCLAUDE.mdと組み合わせて読み込まれます。挙動がおかしいときは<code>/memory</code>で両方を確認してください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">.claude/rules/ に分けるルール</h2>
+    <div class="grid">
+      <article>
+        <h2>セキュリティルール</h2><p class="maker"><code>.claude/rules/security.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>禁止：APIキー・パスワードをソースコードに書かない、個人情報をログに出さない</li><li>禁止：<code>.env</code>を読まない、認証情報を表示しない、機密ファイルを編集しない</li><li>必須：入力値の検証、SQLインジェクション対策、認証処理の共通化</li></ul>
+        <h3>書き方のポイント</h3><ul><li>「禁止事項」と「必須対応」に分けて書く</li><li>AIに「セキュリティルールを追加して」と依頼して作らせることもできる</li></ul>
+        <p class="note">ルールだけでは止めきれない場合もあるため、許可設定・サンドボックス・Hooksと組み合わせて多重に守ります。</p>
+      </article>
+      <article>
+        <h2>コーディング規約</h2><p class="maker"><code>.claude/rules/coding-style.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>命名規則（クラス・関数・変数ごとの書き方）</li><li>コメント方針：複雑な処理には「何をするか」ではなく理由を書く</li></ul>
+        <h3>書き方のポイント</h3><ul><li>Bad例・Good例を並べて書く</li></ul>
+        <p class="note">具体例があると、AIが規約を誤解しにくくなります。</p>
+      </article>
+      <article>
+        <h2>アーキテクチャルール</h2><p class="maker"><code>.claude/rules/architecture.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>採用するアーキテクチャ（例：Clean Architecture）</li><li>レイヤー構成と依存の向き</li><li>禁止：Domain層からのDBアクセス</li></ul>
+        <h3>書き方のポイント</h3><ul><li>基本方針・構成・禁止事項の順に書く</li></ul>
+        <p class="note">やってはいけないことを明記しておくと、設計崩れを防げます。</p>
+      </article>
+      <article>
+        <h2>テスト方針</h2><p class="maker"><code>.claude/rules/testing.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>変更時は必ずテストを追加・更新する</li><li>先にテストを書き、通るコードをAIに書かせる（TDD）</li><li>修正後はテストを再実行する</li></ul>
+        <h3>書き方のポイント</h3><ul><li>実行コマンドと合格条件を書いておく</li></ul>
+        <p class="note">セキュリティに関わる機能ほど、先にテストを書いておくと想定外の挙動に気づきやすくなります。</p>
+      </article>
+      <article>
+        <h2>Git運用ルール</h2><p class="maker"><code>.claude/rules/git.md</code></p>
+        <h3>書く内容（例）</h3><ul><li>mainブランチへの直接pushを禁止</li><li>作業ブランチ → Pull Request → レビューの流れを守る</li><li>破壊的なGit操作は実行前に確認する</li></ul>
+        <h3>書き方のポイント</h3><ul><li>ブランチ保護など、Git側の設定とあわせて運用する</li></ul>
+        <p class="note">「気づいたらmainが更新されていた」という失敗を防ぐためのルールです。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">運用と安全のためのルール</h2>
+    <div class="grid">
+      <article>
+        <h2>環境・危険操作のルール</h2><p class="maker">CLAUDE.md / rules</p>
+        <h3>書く内容（例）</h3><ul><li>本番と検証の接続先は、実行前に人間が確認する</li><li>データの削除・上書きなど破壊的な操作は実行前に確認を取る</li></ul>
+        <h3>書き方のポイント</h3><ul><li>対象環境の切り替えをAI任せにしない</li></ul>
+        <p class="note">検証のつもりで本番環境に危険な処理をかけてしまう失敗が実際に起きています。止める仕組み（許可設定・サンドボックス）も事前に用意してください。</p>
+      </article>
+      <article>
+        <h2>コンテキスト管理のルール</h2><p class="maker">CLAUDE.md</p>
+        <h3>書く内容（例）</h3><ul><li>タスクが終わったら<code>/clear</code>で履歴をクリアする</li><li>作業内容をドキュメントにまとめてから再開する</li></ul>
+        <h3>書き方のポイント</h3><ul><li>長いセッションを続けず、区切って作業する</li></ul>
+        <p class="note">コンテキストが増えすぎるとAIの判断精度が落ちる可能性があります。</p>
+      </article>
+      <article>
+        <h2>AIレビュー対応のルール</h2><p class="maker">CLAUDE.md / rules</p>
+        <h3>書く内容（例）</h3><ul><li>レビューは最大2〜3回までにする</li><li>指摘への対応は必要最小限の変更にとどめる</li><li>要件定義を最優先の参照元にする</li><li>一定回数を超えたら人間にエスカレーションする</li></ul>
+        <h3>書き方のポイント</h3><ul><li>指摘をそのまま直さず、仕様・コード・テストと照合してから修正させる</li></ul>
+        <p class="note">レビューの無限ループ、過剰なリファクタリング、仕様からの逸脱を防ぎます。</p>
+      </article>
+      <article>
+        <h2>コスト・範囲の上限ルール</h2><p class="maker">CLAUDE.md</p>
+        <h3>書く内容（例）</h3><ul><li>やり取りの往復回数の上限</li><li>「〇〇以内で作る」といったコスト・範囲の上限</li><li>キャッシュに載せられる情報は最初に読み込む</li></ul>
+        <h3>書き方のポイント</h3><ul><li>どこまで制約を書くかを、grill-meなどで詰めてから決める</li></ul>
+        <p class="note">ルールを削りすぎるとやり取りの往復が増え、かえってトークン消費が増えることがあります。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="rules--reading-note"><h2 id="rules--reading-note">ルールの置き場所と書き方の基本</h2><p>自分の開発スタイルは<code>~/.claude/CLAUDE.md</code>、システム概要や技術スタックはプロジェクトの<code>CLAUDE.md</code>、守るべき詳細なルールは<code>.claude/rules/</code>にテーマ別に置きます。CLAUDE.mdは毎回読み込まれるため、3,000〜5,000文字程度を目安に、必要な内容だけを短く書きます（Less is More）。詳細は別ファイルに分け、必要なときだけ読ませるようにします（Progressive Disclosure）。ルールは一度で完成させず、AIとのやり取りで気づいた点を少しずつ反映して育ててください。ルールは「お願い」なので、確実に止めたい操作はHooksや許可設定で強制します。</p></aside>
+    <footer>機能や設定方法は変更される場合があります。導入時には利用中のClaude Codeバージョンと公式ドキュメントを確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-plugins" aria-labelledby="t-plugins">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / PLUGINS</p><h2 class="panel-title" id="t-plugins">Claude Codeのプラグイン一覧</h2></div>
+
+
+    <h2 class="section-title">公式プラグイン（Anthropic・OpenAI）</h2>
+    <div class="grid">
+      <article>
+        <h2>codex-plugin-cc</h2><p class="maker">OpenAI公式</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin marketplace add openai/codex-plugin-cc</code></li><li><code>/plugin install codex@openai-codex</code></li><li><code>/reload-plugins</code></li><li><code>/codex:setup</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li><code>/codex:review</code>（読み取り専用レビュー）</li><li><code>/codex:adversarial-review</code>（設計判断への反論レビュー）</li><li><code>/codex:rescue</code>（調査・修正をCodexへ委譲）</li><li><code>/codex:status</code>・<code>/codex:result</code>・<code>/codex:cancel</code></li><li><code>/agents</code>に<code>codex:codex-rescue</code>サブエージェントを追加</li></ul>
+        <p class="note">Claude Code内からCodex CLI／Codex app serverを呼び出し、別モデルによるクロスレビューやタスク委譲を行えます。<code>/codex:setup</code>でStopフックを使うレビューゲートの有効化／無効化も切り替えられます。</p>
+      </article>
+      <article>
+        <h2>document-skills / example-skills</h2><p class="maker">Anthropic公式（anthropic-agent-skills）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin marketplace add anthropics/skills</code></li><li><code>/plugin install document-skills@anthropic-agent-skills</code></li><li><code>/plugin install example-skills@anthropic-agent-skills</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li>docx・pdf・pptx・xlsxの文書スキル（document-skills）</li><li>公式Skillsの実装例（example-skills）</li><li><code>/skills</code>で導入済みスキルを確認</li></ul>
+        <p class="note">Anthropicが公開している公式Agent Skillsを、Plugin機構でまとめて導入できます。まずは用途に合うものだけを導入し、<code>/skills</code>で認識状況を確認するのがおすすめです。</p>
+      </article>
+      <article>
+        <h2>claude-api</h2><p class="maker">Anthropic公式（anthropic-agent-skills）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin install claude-api@anthropic-agent-skills</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li>Claude API／Anthropic SDKを使う実装の支援</li><li><code>/claude-api</code>での呼び出し</li></ul>
+        <p class="note">現在のClaude Codeには<code>/claude-api</code>が同梱されているため、Claude APIについて相談するだけなら追加導入は不要です。</p>
+      </article>
+      <article>
+        <h2>skill-creator</h2><p class="maker">Anthropic公式（claude-plugins-official）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin install skill-creator@claude-plugins-official</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li>カスタムスキルの作成支援</li><li>作成したスキルの評価支援</li></ul>
+        <p class="note">自作スキルの品質を高めたいときに使う公式マーケットプレイスのプラグインです。スキルの親ディレクトリをセッション中に新規作成した場合は<code>/reload-skills</code>で再読み込みします。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">サードパーティ・コミュニティ製プラグイン</h2>
+    <div class="grid">
+      <article>
+        <h2>ui-ux-pro-max</h2><p class="maker">サードパーティ（nextlevelbuilder）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill</code></li><li><code>/plugin install ui-ux-pro-max@ui-ux-pro-max-skill</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li>UI/UXデザインパターンの知識</li><li>カラーパレット・タイポグラフィの提案</li><li>UIの品質向上・レビュー</li></ul>
+        <p class="note">実体はSkillですが、Plugin機構（<code>/plugin marketplace</code>）経由でも配布されています。</p>
+      </article>
+      <article>
+        <h2>Everything Claude Code（ECC）</h2><p class="maker">サードパーティ（affaan-m/ECC）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin marketplace add https://github.com/affaan-m/ECC</code></li><li><code>/plugin install ecc@ecc</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li><code>/ecc:plan</code>（計画立案の入口）</li><li><code>/code-review</code>・<code>/build-fix</code>・<code>/context-budget</code>など</li><li>エージェント・スキル・フック一式</li></ul>
+        <p class="note">計画・実装・テスト・レビュー・検証・記録を繰り返すワークフローをまとめたオープンソースの設定集です。Anthropic公式機能ではありません。</p>
+      </article>
+      <article>
+        <h2>codex-review</h2><p class="maker">コミュニティ製（andreidavid）</p>
+        <h3>導入コマンド</h3><ul><li>GitHubリポジトリから導入</li></ul>
+        <h3>追加される主な機能</h3><ul><li><code>git commit</code>成功時に自動でCodexレビューを実行</li><li>優先度付きの指摘が解消するまで修正・再commitを継続</li></ul>
+        <p class="note">OpenAI／Anthropicのどちらの公式でもないHookプラグインです。導入前に配布元と権限範囲を確認してください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">自作プラグイン</h2>
+    <div class="grid">
+      <article>
+        <h2>GitHub管理の自作プラグイン</h2><p class="maker">自作（例：design-docs）</p>
+        <h3>導入コマンド</h3><ul><li><code>/plugin marketplace add your-name/claude-skills</code></li><li><code>/plugin install design-docs@my-claude-skills</code></li><li><code>claude plugin validate ./claude-skills/plugins/design-docs</code></li></ul>
+        <h3>追加される主な機能</h3><ul><li><code>/design-docs:create-specs</code>のように<code>プラグイン名:スキル名</code>で呼び出し</li><li>チームでのスキル共有・バージョン管理</li></ul>
+        <p class="note"><code>.claude-plugin/marketplace.json</code>でリポジトリ全体のカタログを、<code>plugin.json</code>で各プラグインを定義します。社内で使い回すスキルはプラグイン化すると配布・更新が簡単になります。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="plugins--reading-note"><h2 id="plugins--reading-note">プラグイン導入時の注意</h2><p>Pluginsはスラッシュコマンド・Hook・Skills・MCP設定などをまとめて配布するパッケージ機構です。記事によってはMCP連携やSkillを「プラグイン」と呼んでいる場合があるため、本ページでは<code>/plugin</code>コマンドで導入できるかどうかを基準に分類しています。公式・サードパーティ・コミュニティ製が混在しているため、特に書き込み系の操作やHookを伴うものは配布元と権限範囲を確認し、まずテスト用のプロジェクトで試してください。導入後は<code>/reload-plugins</code>で反映します。</p></aside>
+    <footer>コマンド名や提供状況は変更される場合があります。最新情報は各公式ドキュメントで確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-skills" aria-labelledby="t-skills">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / SKILLS</p><h2 class="panel-title" id="t-skills">Claude CodeのSkills一覧</h2></div>
+
+
+    <h2 class="section-title">最初に入れたいSkills</h2>
+    <div class="grid">
+      <article>
+        <h2>Find Skills</h2><p class="maker">公開スキル（GitHub / Marketplace）</p>
+        <h3>できること</h3><ul><li>公開されているSkillsを自然言語で検索</li><li>見つけたSkillをそのままインストール</li></ul>
+        <h3>導入・使い方</h3><ul><li>Claude Codeで「Install the Find Skills skill.」と依頼して追加</li><li>GitHubから取得して<code>.claude/skills/find-skills/</code>に配置</li><li>「Find a skill for React development.」のように検索</li></ul>
+        <p class="note">Skillを探すためのSkillです。「何を入れればいいかわからない」ときに最初に導入するのがおすすめです。企業環境でMarketplaceが使えない場合はGitHubから手動で導入します。</p>
+      </article>
+      <article>
+        <h2>Skill Creator</h2><p class="maker">Anthropic公式（claude-plugins-official）</p>
+        <h3>できること</h3><ul><li>自分専用のSkillを対話しながら作成</li><li>作成したSkillの評価を支援</li></ul>
+        <h3>導入・使い方</h3><ul><li><code>/plugin install skill-creator@claude-plugins-official</code></li><li>「〇〇の作業をSkillにして」と依頼</li></ul>
+        <p class="note">売上分析・SNS分析・営業支援など、既存のSkillがない業務も自分でSkill化できます。</p>
+      </article>
+      <article>
+        <h2>document-skills</h2><p class="maker">Anthropic公式（anthropic-agent-skills）</p>
+        <h3>できること</h3><ul><li>docx・pdf・pptx・xlsxの作成・編集</li><li>PDFのフォーム項目抽出など文書作業</li></ul>
+        <h3>導入・使い方</h3><ul><li><code>/plugin marketplace add anthropics/skills</code></li><li><code>/plugin install document-skills@anthropic-agent-skills</code></li><li>「PDFスキルを使って…」と依頼</li></ul>
+        <p class="note">ソースは閲覧できますが、オープンソース扱いではありません。再配布や改変を検討する場合は各フォルダーのライセンス条件を確認してください。</p>
+      </article>
+      <article>
+        <h2><code>/claude-api</code></h2><p class="maker">Anthropic公式（同梱）</p>
+        <h3>できること</h3><ul><li>Claude API／Anthropic SDKを使う実装の相談・支援</li></ul>
+        <h3>導入・使い方</h3><ul><li>現在のClaude Codeには同梱済みのため追加導入は不要</li><li>リポジトリ版は<code>/plugin install claude-api@anthropic-agent-skills</code></li></ul>
+        <p class="note">同梱版とリポジトリ版を重複して入れる必要があるかは、先に判断してください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">開発・デザインを強化するSkills</h2>
+    <div class="grid">
+      <article>
+        <h2>UI UX Pro Max</h2><p class="maker">サードパーティ（nextlevelbuilder）</p>
+        <h3>できること</h3><ul><li>UI/UXの原則を踏まえたUI生成</li><li>参考サイトのレイアウト・配色・タイポグラフィを分析して反映</li></ul>
+        <h3>導入・使い方</h3><ul><li><code>/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill</code></li><li><code>/plugin install ui-ux-pro-max@ui-ux-pro-max-skill</code></li><li>「このデザインを参考にダッシュボードを作成してください」</li></ul>
+        <p class="note">ダッシュボードや管理画面のように型がある画面で特に効果的です。参考デザインはそのままコピーせず、オリジナルにアレンジしてください。</p>
+      </article>
+      <article>
+        <h2>grill-me</h2><p class="maker">公開スキル</p>
+        <h3>できること</h3><ul><li>質問を次々に投げて、曖昧な要件を詰める</li></ul>
+        <h3>導入・使い方</h3><ul><li>作り始める前の要件整理</li><li>資料を読ませて自動回答させる改造版も作れる</li></ul>
+        <p class="note">実務で「一番よく使う」スキルとして挙がっていたものです。</p>
+      </article>
+      <article>
+        <h2>Everything Claude Code（ECC）</h2><p class="maker">サードパーティ（affaan-m/ECC）</p>
+        <h3>できること</h3><ul><li>コードレビュー・セキュリティレビュー・設計方針など開発の基本スキル一式</li></ul>
+        <h3>導入・使い方</h3><ul><li><code>/plugin install ecc@ecc</code></li><li><code>/ecc:plan</code>で計画から開始</li></ul>
+        <p class="note">全部入りですが、指示に関係しないスキルは呼ばれないため肥大化は気にしなくてよいとされています。</p>
+      </article>
+      <article>
+        <h2>Remotion Best Practices</h2><p class="maker">公開スキル</p>
+        <h3>できること</h3><ul><li>Reactで動画を作るRemotionのベストプラクティスを追加</li><li>シーン構成・アニメーション・トランジションを組み合わせた動画生成</li></ul>
+        <h3>導入・使い方</h3><ul><li>「このサービス紹介動画を20秒で作って」と依頼</li><li>X・TikTok・YouTube Shorts向け紹介動画のテンプレート化</li></ul>
+        <p class="note">テンプレートを作っておけば、画像や文章を差し替えるだけで動画を量産できます。</p>
+      </article>
+      <article>
+        <h2>Funnel Analysis</h2><p class="maker">公開スキル</p>
+        <h3>できること</h3><ul><li>訪問 → 登録 → 利用 → 課金のどこで離脱しているかを分析</li><li>ボトルネックの特定と改善案の提案</li></ul>
+        <h3>導入・使い方</h3><ul><li>個人開発サービスの改善</li><li>課金率が低い原因の仮説出し</li></ul>
+        <p class="note">作ること以上に「改善すること」を支援するSkillです。最終的な判断は人間が行ってください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">自作しておきたいSkills</h2>
+    <div class="grid">
+      <article>
+        <h2>メモスキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>作業内容やスキルの使い方をメモアプリへ自動で蓄積</li></ul>
+        <h3>作り方のポイント</h3><ul><li>Obsidianなどのメモアプリと連携</li><li>スキルの作成・利用のたびに記録させる</li></ul>
+        <p class="note">スキルが増えて「どの場面で使うんだったか」を忘れるのを防げます。</p>
+      </article>
+      <article>
+        <h2>自然な日本語スキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>NG表現リストを使ってAIの出力を自然な日本語に整える</li></ul>
+        <h3>作り方のポイント</h3><ul><li>CLAUDE.mdに「日本語でやり取りする際は必ずこのスキルを読み込むこと」と書いて常に効かせる</li></ul>
+        <p class="note">「NGワードスキル」とほぼ同じものです。</p>
+      </article>
+      <article>
+        <h2>デザインスキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>自社サイトやブランドのデザインパターンを統一して適用</li></ul>
+        <h3>作り方のポイント</h3><ul><li>Claude Designなどで作ったデザインシステムを取り込んでスキル化</li><li>既存サービスのデザインルールを渡す</li></ul>
+        <p class="note">Webサイト・スライド・画像生成など、あらゆる制作物の見た目をそろえられます。</p>
+      </article>
+      <article>
+        <h2>スキルサーチスキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>手元のスキルから、今回の指示に使うべきものを探す</li></ul>
+        <h3>作り方のポイント</h3><ul><li>文脈から必要と判断したときに自然に呼び出されるようにする</li></ul>
+        <p class="note">余計なスキルを読み込まずに済むため、コンテキストの節約にもなります。</p>
+      </article>
+      <article>
+        <h2>スライド資料スキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>デザインスキルと組み合わせてPowerPoint資料を生成</li></ul>
+        <h3>作り方のポイント</h3><ul><li>レイアウトパターンをスキル内に多数用意しておく</li></ul>
+        <p class="note">見た目が安定し再現性も高くなる一方、柔軟な対応はしづらくなる点に注意してください。</p>
+      </article>
+      <article>
+        <h2>デプロイスキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>作ったWebサイト・ツール・HTMLスライドをVercelやCloudflareへ自動公開</li></ul>
+        <h3>作り方のポイント</h3><ul><li>成果物の作成後に自動で呼び出されるようにする</li></ul>
+        <p class="note">成果物をすぐにURLで共有できます。公開範囲や認証の設定は必ず確認してください。</p>
+      </article>
+      <article>
+        <h2>画像生成スキル</h2><p class="maker">自作</p>
+        <h3>できること</h3><ul><li>外部の画像生成APIを呼び出して画像を作成</li></ul>
+        <h3>作り方のポイント</h3><ul><li>スライドや記事に図・イメージ画像を入れる場面で使う</li><li>APIキーは環境変数で管理</li></ul>
+        <p class="note">Claude Codeには画像生成機能がないため、外部APIをスキル化しておくと便利です。</p>
+      </article>
+      <article>
+        <h2>動画・テロップ系スキル</h2><p class="maker">自作 / 公開スキル</p>
+        <h3>できること</h3><ul><li>動画生成・図解説動画の作成</li><li>文字起こし結果をもとにしたテロップ（字幕）挿入</li></ul>
+        <h3>作り方のポイント</h3><ul><li>HyperFrame・Remotion・Whisperなどを組み合わせる</li><li>スピード重視ならHTMLベースの動画を使う</li></ul>
+        <p class="note">外部で公開されているスキルを使う場合は、中身を確認してから導入してください。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="skills--reading-note"><h2 id="skills--reading-note">Skillsの置き場所と注意点</h2><p>Skillsは<code>SKILL.md</code>を中心としたMarkdownの手順書です。チームで共有するものは<code>.claude/skills/&lt;名前&gt;/SKILL.md</code>（Gitに含められる）、自分専用の汎用手順は<code>~/.claude/skills/&lt;名前&gt;/SKILL.md</code>に置きます。<code>description</code>に「何をするか」と「いつ使うか」を具体的に書くと自動で呼び出されやすくなります。導入状況は<code>/skills</code>で確認し、セッション中に新しくスキルの親ディレクトリを作成した場合は<code>/reload-skills</code>で再読み込みします。外部から取得したSkillにはスクリプトや外部コマンドの実行が含まれる場合があるため、配布元と中身を確認してから導入してください。</p></aside>
+    <footer>Skillsの提供状況や機能は変更される場合があります。導入前に最新情報を確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-mcp" aria-labelledby="t-mcp">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / MCP</p><h2 class="panel-title" id="t-mcp">Claude CodeのMCP一覧</h2></div>
+
+
+    <h2 class="section-title">開発・コード管理</h2>
+    <div class="grid">
+      <article>
+        <h2>GitHub MCP</h2><p class="maker">GitHub公式</p>
+        <h3>できること</h3><ul><li>Issue・PRの一覧取得・作成・コメント・レビュー</li><li>Actionsのワークフロー実行結果・ログ取得</li><li>Code Scanning・Secret Scanning・Dependabotのアラート確認</li><li>リポジトリ横断のコード検索</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li><code>claude mcp add --transport http github https://api.githubcopilot.com/mcp/ --header "Authorization: Bearer ********"</code></li><li>登録確認は<code>claude mcp list</code></li><li><code>GITHUB_TOOLSETS</code>（例：<code>repos,issues,pull_requests</code>）で有効化する機能を絞り込み</li><li><code>GITHUB_READ_ONLY=1</code>で書き込み系ツールを無効化</li></ul>
+        <p class="note">最も導入優先度が高いMCPの一つです。Docker版（<code>ghcr.io/github/github-mcp-server</code>）をローカルで動かす方法もあります。アクセストークンは設定ファイルに直書きせず、環境変数で管理してください。</p>
+      </article>
+      <article>
+        <h2>Serena MCP</h2><p class="maker">オープンソース</p>
+        <h3>できること</h3><ul><li>大規模なコードベースから関係する箇所だけを高速・正確に探索</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>ファイル数が多いリポジトリでの調査・修正</li><li>無関係なファイルの読み込みによるコンテキスト消費を抑えたいとき</li></ul>
+        <p class="note">コードを丸ごと読ませる代わりに必要な箇所だけを取り出せるため、長時間の作業でもコンテキストを節約できます。</p>
+      </article>
+      <article>
+        <h2>Next.js DevTools MCP</h2><p class="maker">Next.js向け</p>
+        <h3>できること</h3><ul><li>ビルドエラーの取得</li><li>コンポーネント解析</li><li>Dev Serverの監視</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>Next.jsプロジェクトで「ビルドエラーを修正して」と依頼するとき</li></ul>
+        <p class="note">Next.js開発専用のMCPです。フレームワークを使っていない場合は不要です。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">ドキュメント検索・情報取得</h2>
+    <div class="grid">
+      <article>
+        <h2>Context7 MCP</h2><p class="maker">Upstash</p>
+        <h3>できること</h3><ul><li>ライブラリ・フレームワークの最新公式ドキュメントを検索</li><li>最新のAPIやサンプルコードを取得</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>学習データ以降に変更されたAPI・非推奨APIを避けたいとき</li><li>バージョンアップ直後のライブラリを使うとき</li></ul>
+        <p class="note">AIは学習時点までの知識しか持っていないため、常に最新ドキュメントを参照して実装できるようになります。最初に導入したいMCPの一つです。</p>
+      </article>
+      <article>
+        <h2>DeepWiki MCP</h2><p class="maker">Cognition</p>
+        <h3>できること</h3><ul><li>GitHub上のOSSの仕組み・API・設定方法・アーキテクチャを整理した情報を取得</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>OSSライブラリ全体の構造を理解したいとき</li></ul>
+        <p class="note">Context7が公式ドキュメント中心なのに対し、DeepWikiはライブラリ全体の理解を支援します。</p>
+      </article>
+      <article>
+        <h2>Brave Search MCP</h2><p class="maker">Brave</p>
+        <h3>できること</h3><ul><li>Web検索の自動実行</li><li>検索 → 結果分析 → 不足情報の判断 → 再検索の繰り返し</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>最新情報の調査</li><li>複数ソースを比較したいとき</li></ul>
+        <p class="note">検索APIの利用にはAPIキーが必要です。環境変数で管理してください。</p>
+      </article>
+      <article>
+        <h2>Fetch MCP</h2><p class="maker">MCP公式リファレンス実装</p>
+        <h3>できること</h3><ul><li>指定URLの内容を広告・装飾を除いたMarkdownで取得</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>特定ページの内容を読み込ませたいとき</li></ul>
+        <p class="note">取得したWebページの内容はデータとして扱い、ページ内に書かれた指示には従わせない運用が安全です。</p>
+      </article>
+      <article>
+        <h2>Firecrawl MCP</h2><p class="maker">Firecrawl</p>
+        <h3>できること</h3><ul><li>Webページ・サイト全体のスクレイピング</li><li>商品情報・API仕様書などの取得</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>複数ページにまたがる情報をまとめて集めたいとき</li></ul>
+        <p class="note">スクレイピング対象サイトの利用規約を確認してから使ってください。</p>
+      </article>
+      <article>
+        <h2>Sequential Thinking</h2><p class="maker">MCP公式リファレンス実装</p>
+        <h3>できること</h3><ul><li>情報収集 → 整理 → 不足情報の判断 → 再検索 → 再評価 → 回答生成、という思考プロセスを段階化</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>複雑な調査・設計など、段階的に考えさせたいとき</li></ul>
+        <p class="note">検索系MCPと組み合わせると、調査の抜け漏れを減らせます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">データベース・決済</h2>
+    <div class="grid">
+      <article>
+        <h2>Supabase MCP</h2><p class="maker">Supabase公式</p>
+        <h3>できること</h3><ul><li>テーブル一覧・スキーマ確認</li><li>データ検索・SQL実行</li><li>Function・Triggerの作成</li><li>RLS（Row Level Security）の確認・設定</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>Supabaseを使ったアプリ開発全般</li></ul>
+        <p class="note">書き込みやSQL実行ができるため、まずは開発用プロジェクトで試してください。</p>
+      </article>
+      <article>
+        <h2>Neon MCP</h2><p class="maker">Neon公式</p>
+        <h3>できること</h3><ul><li>サーバーレスPostgreSQLのBranch作成</li><li>DBのコピー</li><li>開発環境の生成</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>機能ごとにDBブランチを切って開発したいとき</li></ul>
+        <p class="note">本番DBとは別のブランチで作業させると安全です。</p>
+      </article>
+      <article>
+        <h2>Upstash MCP</h2><p class="maker">Upstash公式</p>
+        <h3>できること</h3><ul><li>Redisの操作</li><li>Rate Limit・Cacheの設定</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>キャッシュやレート制限を実装するとき</li></ul>
+        <p class="note">Redisを簡単に扱えるようにするMCPです。</p>
+      </article>
+      <article>
+        <h2>Stripe MCP</h2><p class="maker">Stripe公式</p>
+        <h3>できること</h3><ul><li>商品一覧の取得・作成、価格確認</li><li>取引履歴・顧客情報の確認</li><li>公式ドキュメントの検索</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>決済機能の開発・確認</li></ul>
+        <p class="note">商品や価格を作成する操作は、まずTest ModeのAPIキーで試してから本番へ反映してください。サブスクリプション関連の一部操作はStripe CLIの併用が必要な場合があります。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">ブラウザ操作</h2>
+    <div class="grid">
+      <article>
+        <h2>Playwright MCP</h2><p class="maker">Microsoft</p>
+        <h3>できること</h3><ul><li>ページ遷移・ボタン押下・フォーム入力・スクロール</li><li>スクリーンショット取得</li><li>E2Eテストの生成・UIレビュー</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>実装した画面を実際に操作して確認させたいとき</li></ul>
+        <p class="note">決済画面など重要な導線を確認する場合は、必ずテスト環境で実行し、本番決済が発生しないよう設定を確認してください。</p>
+      </article>
+      <article>
+        <h2>Chrome DevTools MCP</h2><p class="maker">Google（Chrome）</p>
+        <h3>できること</h3><ul><li>パフォーマンス分析</li><li>Consoleの確認などデバッグ操作</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>表示が遅い・エラーが出る画面の調査</li></ul>
+        <p class="note">画面操作が中心のPlaywright MCPとは役割が異なり、デバッグに特化しています。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">ドキュメント管理・デザイン</h2>
+    <div class="grid">
+      <article>
+        <h2>Notion MCP</h2><p class="maker">Notion公式</p>
+        <h3>できること</h3><ul><li>ページ検索・ドキュメント取得</li><li>ドキュメント作成・ページ更新</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>仕様書や議事録をNotionで管理しているチーム</li></ul>
+        <p class="note">自然言語でNotionワークスペースを操作できます。更新系の操作は対象ページを確認してから実行させてください。</p>
+      </article>
+      <article>
+        <h2>Linear MCP</h2><p class="maker">Linear公式</p>
+        <h3>できること</h3><ul><li>Issue作成</li><li>Sprint確認</li><li>PR連携</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>Linearでタスク管理しているプロジェクト</li></ul>
+        <p class="note">プロジェクト管理業務をClaude Codeから行えます。</p>
+      </article>
+      <article>
+        <h2>Figma MCP</h2><p class="maker">Figma公式</p>
+        <h3>できること</h3><ul><li>Figmaデザインの取得</li><li>React等のコンポーネントとして実装</li><li>実装画面とデザインの差分修正</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>「このFigmaデザインをNext.jsで実装して」のように依頼するとき</li></ul>
+        <p class="note">レイアウト・余白・フォント・カラーなどを読み取ってコードを生成できます。</p>
+      </article>
+      <article>
+        <h2>Claude Design MCP</h2><p class="maker">Anthropic</p>
+        <h3>できること</h3><ul><li>Claude DesignとClaude Codeの連携</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li><code>claude mcp add --scope user --transport http claude-design https://api.anthropic.com/v1/design/mcp</code></li></ul>
+        <p class="note">Claude Codeの<code>/design</code>・<code>/design-sync</code>とあわせて、デザインから実装までをつなげられます。</p>
+      </article>
+      <article>
+        <h2>MarkItDown MCP</h2><p class="maker">Microsoft</p>
+        <h3>できること</h3><ul><li>PDF・Word・Excel・PowerPoint・画像などをMarkdownへ変換</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>既存の資料をClaudeに読ませたいとき</li></ul>
+        <p class="note">資料を変換してから扱うことで、Claudeが内容を解析しやすくなります。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">クラウド・インフラ</h2>
+    <div class="grid">
+      <article>
+        <h2>AWS MCP</h2><p class="maker">AWS公式</p>
+        <h3>できること</h3><ul><li>Lambdaのログ取得</li><li>コスト分析</li><li>CDKコードの生成</li><li>リソース検索</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>AWS環境の調査・運用</li></ul>
+        <p class="note">本番アカウントへは読み取り権限など最小権限から試してください。長期アクセスキーを設定ファイルに書かないよう注意してください。</p>
+      </article>
+      <article>
+        <h2>Cloudflare MCP</h2><p class="maker">Cloudflare公式</p>
+        <h3>できること</h3><ul><li>Workers・KV・D1 Database・Cacheなどの操作</li></ul>
+        <h3>使いどころ・設定のポイント</h3><ul><li>Cloudflare上でのWebサイト公開・運用</li></ul>
+        <p class="note">Cloudflare環境を自然言語で操作できます。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="mcp--reading-note"><h2 id="mcp--reading-note">最初に導入するならこの3つ</h2><p>すべてを一度に導入する必要はありません。まずは<strong>GitHub MCP → Context7 MCP → 普段使うサービスのMCP</strong>の順に導入すると、効果を実感しやすくなります。MCPは<code>claude mcp add</code>で登録し、<code>claude mcp list</code>で確認します。APIキーやトークンは環境変数で管理し、公式提供のMCPを優先してください。サードパーティ製のものは、ソースコード・権限・メンテナンス状況を確認してから導入し、決済や書き込み系の操作はテスト環境や読み取り専用の設定で試してください。</p></aside>
+    <footer>MCPサーバーの提供状況や機能は変更される場合があります。導入前に提供元の最新情報を確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-subagents" aria-labelledby="t-subagents">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / SUBAGENTS</p><h2 class="panel-title" id="t-subagents">Claude CodeのSubagents一覧</h2></div>
+
+
+    <h2 class="section-title">開発の基本チーム</h2>
+    <div class="grid">
+      <article>
+        <h2>調査担当</h2><p class="maker">自作（<code>.claude/agents/</code>）</p>
+        <h3>役割・任せる作業</h3><ul><li>コードベースの調査</li><li>関係するファイル・箇所の洗い出し</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>結果だけを要約して返させる</li><li>編集系のツールを持たせず読み取り専用にする</li></ul>
+        <p class="note">サブエージェントは独自のコンテキストで動き、詳細なログをメインに渡さず結果だけを返します。調査を任せるとメインの会話コンテキストを圧迫しません。</p>
+      </article>
+      <article>
+        <h2>プランナー</h2><p class="maker">自作 / ECC（planner）</p>
+        <h3>役割・任せる作業</h3><ul><li>タスクを分解して作業計画を立てる</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>「何を、どこまで、どんな形式で報告してほしいか」を具体的に指示</li><li>レビュアー・実行者と組み合わせて使う</li></ul>
+        <p class="note">計画・チェック・実行を別々のAIに担当させ、互いにチェックさせる設計は「ハーネスエンジニアリング」と呼ばれています。</p>
+      </article>
+      <article>
+        <h2>アーキテクト</h2><p class="maker">自作 / ECC（architect）</p>
+        <h3>役割・任せる作業</h3><ul><li>システム設計のレビュー</li><li>技術選定</li><li>設計の妥当性確認</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li><code>.claude/agents/architect.md</code>に役割・責務を定義</li><li>禁止事項に「実装コードを書かない」と明記</li></ul>
+        <p class="note">やること・やらないことを両方書いておくと、役割を越えた作業をしにくくなり、出力のブレを抑えられます。</p>
+      </article>
+      <article>
+        <h2>実行者（実装担当）</h2><p class="maker">自作</p>
+        <h3>役割・任せる作業</h3><ul><li>プランナーの計画に沿って実装する</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>計画と完了条件を渡す</li><li>複数の実装担当を並行して動かすこともできる</li></ul>
+        <p class="note">並列実行するとそれぞれが独立したコンテキストを使うため、トークン消費が増える点に注意してください。</p>
+      </article>
+      <article>
+        <h2>レビュアー</h2><p class="maker">自作 / ECC（code-reviewer）</p>
+        <h3>役割・任せる作業</h3><ul><li>計画や成果物を批判的な視点でチェック</li><li>コードの品質確認・検収</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>実装とは別のエージェントにレビューさせる</li><li>レビュー観点を定義に書いておく</li></ul>
+        <p class="note">書いた本人とは別の視点でチェックさせることで、見落としを減らせます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">外部AIとの連携</h2>
+    <div class="grid">
+      <article>
+        <h2><code>codex:codex-rescue</code></h2><p class="maker">codex-plugin-cc（OpenAI公式）</p>
+        <h3>役割・任せる作業</h3><ul><li>バグ調査・修正の試行・前回タスクの継続をCodexへ委譲</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>codex-plugin-ccを導入すると<code>/agents</code>に追加される</li><li><code>/codex:rescue</code>から呼び出す</li></ul>
+        <p class="note">Claude Codeとは別のモデルに作業を任せられるため、行き詰まったときのセカンドオピニオンとして使えます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">文章・業務向け</h2>
+    <div class="grid">
+      <article>
+        <h2>用途別の文章生成エージェント</h2><p class="maker">自作</p>
+        <h3>役割・任せる作業</h3><ul><li>分析レポートなどを元に、ブログ記事・報告書など用途別の文章を生成</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>ブログ用・報告書用など、用途ごとに別のプロンプトを設定</li><li>複数のエージェントを使う流れはSkillにまとめる</li></ul>
+        <p class="note">Skill化しておくと、どのエージェントを使うかを毎回考えずに同じワークフローを繰り返し実行できます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">チーム構成の例：仮想ホームページ制作会社</h2>
+    <div class="grid">
+      <article>
+        <h2>PM</h2><p class="maker">自作（司令塔役）</p>
+        <h3>役割・任せる作業</h3><ul><li>ブリーフ（企画概要）の作成・工程管理</li><li>各AI社員の呼び出し</li><li>人間への確認</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>人間が関与するのは「要件を伝える／構成案を承認／納品物を承認／公開を判断」の4回に絞る</li></ul>
+        <p class="note">PM役のエージェントが専門のサブエージェントを順に呼び出し、足りなければ再度呼び出して仕事を進めます。</p>
+      </article>
+      <article>
+        <h2>制作スタッフ</h2><p class="maker">自作（専門サブエージェント）</p>
+        <h3>役割・任せる作業</h3><ul><li>ディレクター：LPの構成とセクション設計</li><li>コピーライター：トーンの下調べと本文作成</li><li>デザイナー：スタイル設計・画像生成</li><li>コーダー：実装</li><li>レビュアー：品質管理・検収</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>役割・口調・担当範囲をエージェントごとに定義</li><li>「誰が何を出力し、次に誰へ渡すか」を先に決める</li></ul>
+        <p class="note">役割を細かく分けるほど、各エージェントへの指示と責任範囲が明確になります。</p>
+      </article>
+      <article>
+        <h2>インフラ担当</h2><p class="maker">自作</p>
+        <h3>役割・任せる作業</h3><ul><li>環境の点検</li><li>承認後のVercelへの公開</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>公開は人間の承認後に実行させる</li></ul>
+        <p class="note">自動承認モードでは公開まで人の確認なしに進む可能性があります。外部公開や費用が発生する操作は、最終判断を人間が行う設定にしてください。</p>
+      </article>
+      <article>
+        <h2>経理担当</h2><p class="maker">自作</p>
+        <h3>役割・任せる作業</h3><ul><li>社員ごとのトークン使用量を円換算で集計</li><li>Excelの帳簿に記帳</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>納品承認後に呼び出す</li></ul>
+        <p class="note">マルチエージェント構成はトークン消費が増えやすいため、コストを見える化する役割があると運用しやすくなります。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">発展的な仕組み</h2>
+    <div class="grid">
+      <article>
+        <h2>エージェントチーム</h2><p class="maker">Claude Codeの機能</p>
+        <h3>役割・任せる作業</h3><ul><li>設計担当・開発担当・評価担当などを組織化して協働させる</li></ul>
+        <h3>定義・使い方のポイント</h3><ul><li>サブエージェントは各自が独立して作業</li><li>エージェントチームはAI同士が情報を共有しながら進める</li></ul>
+        <p class="note">AIを大量に動かす場合があるため、使用モデルの指定や実行回数の制限など、コストを制御する設定とあわせて使ってください。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="subagents--reading-note"><h2 id="subagents--reading-note">Subagentsの定義場所と注意点</h2><p>サブエージェントは、特定の役割を持たせた別のエージェントに作業の一部を任せる仕組みです。プロジェクトの<code>.claude/agents/</code>にMarkdownで役割・責務・禁止事項を定義し、<code>/agents</code>で確認します。役割ごとにプロンプトと使えるツールを絞ると作業のブレを抑えやすく、結果だけを返させるとメインの会話コンテキストを節約できます。一方で、並列実行や多数のエージェントを使う構成はそれぞれが独立したコンテキストを消費するため、トークン使用量が増えます。必要な役割から少しずつ追加し、外部への公開や費用が発生する操作は人間が最終判断してください。</p></aside>
+    <footer>機能や設定方法は変更される場合があります。導入時には利用中のClaude Codeバージョンと公式ドキュメントを確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-hooks" aria-labelledby="t-hooks">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / HOOKS</p><h2 class="panel-title" id="t-hooks">Claude CodeのHooks一覧</h2></div>
+
+
+    <h2 class="section-title">コード品質を保つHooks</h2>
+    <div class="grid">
+      <article>
+        <h2>編集後の自動整形</h2><p class="maker">コマンド型Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>PostToolUse</code></li><li>matcher：<code>Edit|Write</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>標準入力のJSONから<code>tool_input.file_path</code>を読み取る</li><li>対象拡張子（<code>.js</code>・<code>.ts</code>など）だけPrettierなどで整形</li><li>例：<code>python3 .claude/hooks/format_file.py</code></li></ul>
+        <p class="note">ファイル名をシェル文字列に連結せず、引数を配列で渡すとコマンドインジェクションを避けられます。プロジェクト外のパスは処理しないようにしてください。</p>
+      </article>
+      <article>
+        <h2>編集後のLintチェック</h2><p class="maker">コマンド型Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>PostToolUse</code></li><li>matcher：<code>Edit|Write</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>編集のたびにLintを実行して品質を確認</li><li>例：<code>${CLAUDE_PROJECT_DIR}/.claude/hooks/lint-check.sh</code></li></ul>
+        <p class="note">重いチェックを毎回動かすと待ち時間が増えるため、matcherで対象を絞り込みます。</p>
+      </article>
+      <article>
+        <h2>保護対象ファイルの編集ブロック</h2><p class="maker">コマンド型Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>PreToolUse</code></li><li>matcher：<code>Edit|Write</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li><code>.env</code>・<code>.env.local</code>への直接編集を検出</li><li>終了コード<code>2</code>＋標準エラーで操作をブロックし、理由をClaudeへ伝える</li></ul>
+        <p class="note">EditとWriteの直接呼び出しだけが対象です。Bash経由など別の書き換え経路もあるため、Hookをアクセス制御の唯一の手段にしないでください。</p>
+      </article>
+      <article>
+        <h2>Bash実行前の確認・通知</h2><p class="maker">コマンド型Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>PreToolUse</code></li><li>matcher：<code>Bash</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>Bashツールが呼ばれる直前にメッセージを表示</li><li>コマンド内容を検査し、必要なら中止</li></ul>
+        <p class="note">最初に試す設定例として最適です。<code>permissionDecision</code>に<code>allow</code>・<code>deny</code>・<code>ask</code>を返すと、許可・拒否・確認を構造化して指定できます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">レビューを自動化するHooks</h2>
+    <div class="grid">
+      <article>
+        <h2>commit後の自動Codexレビュー</h2><p class="maker">PostToolUse Hook（コミュニティ製の例）</p>
+        <h3>イベント・条件</h3><ul><li><code>PostToolUse</code></li><li>Claude CodeがBashツール経由で<code>git commit</code>に成功したとき</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>Codex CLIでコミット内容をレビュー</li><li>[P1]／[P2]相当の指摘があればコミットをブロック</li></ul>
+        <p class="note">andreidavid/codex-reviewの構成例です。人がターミナルから直接行ったコミットは対象外です。OpenAI公式のcodex-plugin-ccにはこのHookは含まれていません。</p>
+      </article>
+      <article>
+        <h2>レビュー通過まで作業を継続</h2><p class="maker">Stop Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>Stop</code></li><li>Claudeの応答が終わるとき</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>完了条件（レビュー通過など）を確認</li><li>満たしていなければ修正・再commitを続けさせる</li></ul>
+        <p class="note">無限ループを避けるため、繰り返し回数の上限を設けてください。まずは<code>/codex:review --wait</code>の手動運用で基準を固めてから移行するのが安全です。</p>
+      </article>
+      <article>
+        <h2>セッション開始時の環境チェック</h2><p class="maker">SessionStart Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>SessionStart</code></li><li>セッションの開始・再開時</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>必要なツールの導入・認証状態を確認して警告</li><li>開発環境の状態や短い補足情報をClaudeへ渡す</li></ul>
+        <p class="note">レビュー用のCLIが未導入・未認証でHookが動かない、といった問題に早めに気づけます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">記録・通知のHooks</h2>
+    <div class="grid">
+      <article>
+        <h2>入力待ちのデスクトップ通知</h2><p class="maker">Notification Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>Notification</code></li><li>通知が発生したとき</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>Claudeが入力待ちになったらデスクトップに知らせる</li></ul>
+        <p class="note">長い作業を任せている間、ほかの作業をしていても確認待ちを見逃しません。</p>
+      </article>
+      <article>
+        <h2>サブエージェントの実行時間記録</h2><p class="maker">SubagentStart / SubagentStop Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>SubagentStart</code>・<code>SubagentStop</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>開始・終了の時刻や識別子をログへ記録</li></ul>
+        <p class="note">開始待ち・実行・終了のどこに時間がかかっているかを調べる材料になります。</p>
+      </article>
+      <article>
+        <h2>コンテキスト圧縮前後の状態保存</h2><p class="maker">PreCompact / PostCompact Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>PreCompact</code>・<code>PostCompact</code></li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>圧縮前に作業状態を保存</li><li>圧縮後に必要な文脈を補足</li></ul>
+        <p class="note"><code>/compact</code>や自動圧縮で失われがちな情報を残せます。</p>
+      </article>
+      <article>
+        <h2>プロンプト送信時の情報追加</h2><p class="maker">UserPromptSubmit Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>UserPromptSubmit</code></li><li>ユーザーの入力を処理する前</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>作業に必要な情報をコンテキストへ追加</li></ul>
+        <p class="note">毎回伝えている前提情報を自動で補えます。追加しすぎるとコンテキストを圧迫するので注意してください。</p>
+      </article>
+      <article>
+        <h2>セッション終了の記録</h2><p class="maker">SessionEnd Hook</p>
+        <h3>イベント・条件</h3><ul><li><code>SessionEnd</code></li><li>セッション終了時</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>作業内容や終了時刻を記録</li></ul>
+        <p class="note">作業ログを残しておくと、後から振り返りやすくなります。ログにトークンや個人情報を出力しないでください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">発展的な仕組み</h2>
+    <div class="grid">
+      <article>
+        <h2>Claude Mods（Function Hooks）</h2><p class="maker">実験的機能</p>
+        <h3>イベント・条件</h3><ul><li>ツール呼び出し・UI描画・ユーザーへの質問など、Claude Code内部のイベント</li></ul>
+        <h3>処理内容・設定のポイント</h3><ul><li>TypeScript関数を差し込んでプロセス内で動かし続ける</li><li>TUIへの独自表示や、入力欄・ボタンでの質問ができる</li><li>基本的にプラグインとして提供</li></ul>
+        <p class="note">設定ファイルで完結する従来のHooksが「止める・通す・文言を足す」中心なのに対し、Claude Code本体へより深く干渉できます。実験的機能のため、仕様変更に注意してください。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="hooks--reading-note"><h2 id="hooks--reading-note">Hooksの設定場所と注意点</h2><p>Hooksは<code>.claude/hooks/</code>にスクリプトを置くだけでは動きません。<code>~/.claude/settings.json</code>（全プロジェクト）、<code>.claude/settings.json</code>（プロジェクトで共有）、<code>.claude/settings.local.json</code>（プロジェクトの自分用）のいずれかに、イベント名・matcher・コマンドを登録します。設定後は<code>/hooks</code>で認識状況を確認し、動かないときはイベント名とmatcherの大文字・小文字、スクリプトのパスを確認して<code>claude --debug</code>で診断します。複数のHookが一致すると並行して実行されるため、順番に依存する処理は1つのスクリプトにまとめてください。標準出力にデバッグ用の文字列を混ぜるとJSONが解析できなくなるため、ログは標準エラーか別ファイルへ出力します。プラグインで導入したHookを手動でも重ねて登録すると二重に実行されるので注意してください。</p></aside>
+    <footer>イベント名や設定値は変更される場合があります。導入時には利用中のClaude Codeバージョンと公式ドキュメントを確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-permissions" aria-labelledby="t-permissions">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / PERMISSIONS</p><h2 class="panel-title" id="t-permissions">Claude CodeのPermissions設定一覧</h2></div>
+
+
+    <h2 class="section-title">権限モード</h2>
+    <div class="grid">
+      <article>
+        <h2>通常モード</h2><p class="maker">default</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;default&quot;
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>ファイル編集やコマンド実行の前に毎回確認する</li><li>導入直後や、慣れないプロジェクトで使う</li></ul>
+        <p class="note">最初からすべてのコマンドを自動承認するのはおすすめしません。安全な開発フローが固まってから、自動承認する操作を段階的に増やします。</p>
+      </article>
+      <article>
+        <h2>Plan Mode</h2><p class="maker">plan</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;plan&quot;
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>コードを書く前に、作業・手順・修正対象・注意事項を整理させる</li><li>設計と実装を分けたいとき</li></ul>
+        <p class="note">計画を作る間はファイルを書き換えないため、要件が固まっていない段階でも安心して使えます。<code>Shift+Tab</code>でモードを切り替えられます。</p>
+      </article>
+      <article>
+        <h2>編集の自動承認</h2><p class="maker">acceptEdits</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;acceptEdits&quot;
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>ファイル編集だけを自動で承認し、コマンド実行は確認する</li><li>Gitで差分を確認・戻せる状態で使う</li></ul>
+        <p class="note">作業ブランチで作業し、編集内容は<code>git diff</code>で確認できるようにしておきます。</p>
+      </article>
+      <article>
+        <h2>確認なしの自動実行</h2><p class="maker">オートモード / bypassPermissions</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;bypassPermissions&quot;
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>サンドボックスやコンテナなど、隔離された環境でのみ使う</li><li>denyルールとHooksで危険な操作を止めておく</li></ul>
+        <p class="note">人が都度確認しない運用では、削除・上書き・外部送信などを誤って実行する危険があります。本番環境や機密情報がある環境では使わないでください。オートモードではサブディレクトリのCLAUDE.mdが読まれないことがある点にも注意してください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">deny：必ず拒否する設定</h2>
+    <div class="grid">
+      <article>
+        <h2>機密ファイルの読み込み禁止</h2><p class="maker">deny</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;deny&quot;: [
+      &quot;Read(./.env)&quot;,
+      &quot;Read(./.env.*)&quot;,
+      &quot;Read(./secrets/**)&quot;,
+      &quot;Read(~/.ssh/**)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>APIキー・パスワード・トークンが入ったファイルをAIから見えなくする</li><li>最も優先して設定したい項目</li></ul>
+        <p class="note">.envの中身をClaude Codeに読ませる必要はありません。AIに「.envを読み込まないよう設定して」と依頼して設定させることもできます。</p>
+      </article>
+      <article>
+        <h2>破壊的なコマンドの禁止</h2><p class="maker">deny</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;deny&quot;: [
+      &quot;Bash(rm -rf:*)&quot;,
+      &quot;Bash(git reset --hard:*)&quot;,
+      &quot;Bash(git push --force:*)&quot;,
+      &quot;Bash(git push -f:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>取り返しのつかない操作をブロックする</li><li>Escapeキーで止めようとしても間に合わない事故を防ぐ</li></ul>
+        <p class="note">コマンドの書き方次第ではルールをすり抜ける場合があります。denyだけに頼らず、サンドボックスやHooks、Gitのブランチ保護と組み合わせてください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">ask：毎回確認する設定</h2>
+    <div class="grid">
+      <article>
+        <h2>Gitへの反映</h2><p class="maker">ask</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;ask&quot;: [
+      &quot;Bash(git commit:*)&quot;,
+      &quot;Bash(git push:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>コミット・プッシュの前に必ず人が内容を確認する</li><li>mainへ直接反映せず、Pull Requestを経由する</li></ul>
+        <p class="note">「気づいたらmainブランチが更新されていた」という失敗を防げます。</p>
+      </article>
+      <article>
+        <h2>外部通信</h2><p class="maker">ask</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;ask&quot;: [
+      &quot;Bash(curl:*)&quot;,
+      &quot;Bash(wget:*)&quot;,
+      &quot;WebFetch&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>ファイルのダウンロードや外部APIへの送信を確認する</li><li>よく見る公式ドキュメントだけ<code>WebFetch(domain:...)</code>でallowにする</li></ul>
+        <p class="note">外部ページの内容にはプロンプトインジェクションが含まれる可能性があるため、取得先を把握できるようにしておきます。</p>
+      </article>
+      <article>
+        <h2>本番環境・クラウド操作</h2><p class="maker">ask</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;ask&quot;: [
+      &quot;Bash(terraform apply:*)&quot;,
+      &quot;Bash(kubectl delete:*)&quot;,
+      &quot;Bash(aws:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>本番環境・DB変更・外部サービスへの変更は必ず人が判断する</li><li>接続先が検証環境か本番環境かを実行前に確認する</li></ul>
+        <p class="note">検証のつもりで本番環境に危険な処理をかけてしまう失敗が実際に起きています。対象環境の切り替えはAI任せにしないでください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">allow：自動で許可する設定</h2>
+    <div class="grid">
+      <article>
+        <h2>テスト・Lint・ビルド</h2><p class="maker">allow</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(npm run test:*)&quot;,
+      &quot;Bash(npm run lint:*)&quot;,
+      &quot;Bash(python -m pytest:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>毎回実行する検証コマンドは確認を省いて作業を速くする</li><li>CLAUDE.mdの「検証方法・完了条件」と合わせる</li></ul>
+        <p class="note">プロジェクトで実際に使うコマンドだけを、必要な範囲に絞って登録します。</p>
+      </article>
+      <article>
+        <h2>読み取り専用のGit操作</h2><p class="maker">allow</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(git status)&quot;,
+      &quot;Bash(git diff:*)&quot;,
+      &quot;Bash(git log:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>状態確認のための読み取り系コマンドを許可する</li></ul>
+        <p class="note">変更を伴わない操作から許可していくと、安全性を保ったまま確認の回数を減らせます。</p>
+      </article>
+      <article>
+        <h2>MCPツール</h2><p class="maker">allow / ask</p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;mcp__context7&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;mcp__github&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>ドキュメント検索などの読み取り系MCPはallow</li><li>書き込みができるMCPはaskにする</li></ul>
+        <p class="note">GitHub MCPは<code>GITHUB_READ_ONLY=1</code>、Stripe MCPはテスト用のAPIキーなど、MCP側の設定でも権限を絞ってください。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">自動実行・隔離</h2>
+    <div class="grid">
+      <article>
+        <h2>定期実行・CIでのツール制限</h2><p class="maker"><code>claude -p</code></p>
+        <h3>実行例</h3><ul><li><pre>claude -p &quot;定期コードレビューを実行してください&quot; \
+  --allowedTools &quot;Read,Grep,Glob,Bash(npm run test:*)&quot;</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>実行できるツールと対象ディレクトリを限定する</li><li>APIキーはSecretsで管理する</li><li>変更はmainへ直接反映せずPull Requestにする</li></ul>
+        <p class="note">定期実行では人がその場にいないため、ファイル削除・Git操作・DB操作・外部API操作が自動で行われる可能性があります。ログを保存し、結果を後から人が確認できるようにしてください。</p>
+      </article>
+      <article>
+        <h2>サンドボックス</h2><p class="maker"><code>/sandbox</code></p>
+        <h3>実行例</h3><ul><li><pre>/sandbox</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>AIを限られた作業エリアに閉じ込め、誤動作したときの影響範囲を限定する</li><li>自動承認を増やす場合の土台にする</li></ul>
+        <p class="note">ネットワーク通信など一部の処理は対象外になることもあり、サンドボックスだけで完全に安全になるわけではありません。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">まとめた設定例</h2>
+    <div class="grid">
+      <article>
+        <h2>最初の一歩の設定</h2><p class="maker"><code>.claude/settings.json</code></p>
+        <h3>設定例</h3><ul><li><pre>{
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;default&quot;,
+    &quot;allow&quot;: [
+      &quot;Bash(npm run test:*)&quot;,
+      &quot;Bash(npm run lint:*)&quot;,
+      &quot;Bash(git status)&quot;,
+      &quot;Bash(git diff:*)&quot;,
+      &quot;Bash(git log:*)&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;Bash(git commit:*)&quot;,
+      &quot;Bash(git push:*)&quot;,
+      &quot;Bash(curl:*)&quot;,
+      &quot;WebFetch&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;Read(./.env)&quot;,
+      &quot;Read(./.env.*)&quot;,
+      &quot;Read(./secrets/**)&quot;,
+      &quot;Bash(rm -rf:*)&quot;,
+      &quot;Bash(git reset --hard:*)&quot;,
+      &quot;Bash(git push --force:*)&quot;
+    ]
+  }
+}</pre></li></ul>
+        <h3>使いどころ・ポイント</h3><ul><li>機密ファイルと破壊的なコマンドはdeny</li><li>Gitへの反映と外部通信はask</li><li>テスト・Lint・読み取り系のGitだけallow</li><li>慣れてきたらallowを少しずつ増やす</li></ul>
+        <p class="note">テスト・Lintのコマンドはプロジェクトに合わせて書き換えてください。チームで共有する設定は<code>.claude/settings.json</code>、自分だけの設定は<code>.claude/settings.local.json</code>に書きます。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="permissions--reading-note"><h2 id="permissions--reading-note">Permissions設定の基本</h2><p>権限は<code>~/.claude/settings.json</code>（全プロジェクト）、<code>.claude/settings.json</code>（プロジェクトで共有）、<code>.claude/settings.local.json</code>（プロジェクトの自分用）の<code>permissions</code>に書きます。ルールが重なった場合はdeny → ask → allowの順に優先されるため、拒否したい操作は必ずdenyに入れます。現在のルールは<code>/permissions</code>で確認できます。Claude Codeには危険な操作前の確認・危険コマンドの警告・サンドボックス・禁止ルールといった安全機能がありますが、100%安全になるわけではありません。権限は最初から広げすぎず、確実に止めたい操作はHooksやGitのブランチ保護とも組み合わせてください。</p></aside>
+    <footer>設定項目やルールの書き方は変更される場合があります。導入時には利用中のClaude Codeバージョンと公式ドキュメントを確認してください。</footer>
+  
+    </section>
+    <section class="panel" id="p-slash-commands" aria-labelledby="t-slash-commands">
+      <div class="panel-head"><p class="eyebrow">CLAUDE CODE / SLASH COMMANDS</p><h2 class="panel-title" id="t-slash-commands">Claude Codeのスラッシュコマンド一覧</h2></div>
+
+
+    <h2 class="section-title">セッション・コンテキスト管理</h2>
+    <div class="grid">
+      <article>
+        <h2><code>/compact</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>会話履歴・作業内容を要約し、不要な情報を削除してコンテキストを圧縮</li></ul>
+        <h3>使いどころ</h3><ul><li>長時間の開発で応答品質が落ちてきたとき</li><li>Status Lineで使用率が高くなったとき</li></ul>
+        <p class="note">「長時間の開発 → Context増加 → /compactで要約 → 作業継続」というサイクルで使います。</p>
+      </article>
+      <article>
+        <h2><code>/context</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>現在のコンテキスト使用量を確認</li><li>どのツールがどれだけ消費しているかを可視化</li></ul>
+        <h3>使いどころ</h3><ul><li>長時間の作業中に定期的に確認</li><li>MCPやSkillsの消費量を把握したいとき</li></ul>
+        <p class="note">毎回実行する代わりに、Status Lineでコンテキスト使用率を常時表示する方法もあります。</p>
+      </article>
+      <article>
+        <h2><code>/clear</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>会話をリセットする</li></ul>
+        <h3>使いどころ</h3><ul><li>タスクの区切り</li><li>セキュリティ対策としての定期的なリセット</li></ul>
+        <p class="note">前のタスクの文脈を引きずらないためにも、作業単位でのリセットが推奨されています。</p>
+      </article>
+      <article>
+        <h2><code>/memory</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>読み込まれているCLAUDE.md（プロジェクト用・ユーザー用）を確認</li></ul>
+        <h3>使いどころ</h3><ul><li>Claudeの挙動がおかしいと感じたとき</li><li>ユーザー用CLAUDE.mdの影響を確認したいとき</li></ul>
+        <p class="note">プロジェクト側にCLAUDE.mdが無くてもユーザー用CLAUDE.mdは読み込まれるため、両方を確認できるこのコマンドが役立ちます。</p>
+      </article>
+      <article>
+        <h2><code>/remote-control</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>会話中のセッションをスマホなど別デバイスから操作できるようにする</li></ul>
+        <h3>使いどころ</h3><ul><li>自宅PCで始めた作業を外出先で続けたいとき</li></ul>
+        <p class="note">起動時から使う場合は<code>claude --remote-control</code>でも開始できます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">設定・拡張機能の管理</h2>
+    <div class="grid">
+      <article>
+        <h2><code>/statusline</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>画面下部のStatus Lineを自然言語の依頼で自動生成・設定</li></ul>
+        <h3>使いどころ</h3><ul><li>コンテキスト使用率・料金・Gitブランチ・利用率を常時表示したいとき</li></ul>
+        <p class="note">使用率を常に見ておくと、<code>/compact</code>や新しいセッションを始めるタイミングを判断しやすくなります。</p>
+      </article>
+      <article>
+        <h2><code>/skills</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>インストール済みSkillの一覧を確認</li></ul>
+        <h3>使いどころ</h3><ul><li>Skillやプラグインを導入した直後の認識確認</li></ul>
+        <p class="note">セッション中にスキルの親ディレクトリを新規作成した場合は<code>/reload-skills</code>で再読み込みします。</p>
+      </article>
+      <article>
+        <h2><code>/hooks</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>登録済みHookのイベント・matcher・設定元を確認</li></ul>
+        <h3>使いどころ</h3><ul><li>Hookを設定した後の動作確認</li><li>Hookが動かないときの切り分け</li></ul>
+        <p class="note"><code>/hooks</code>は閲覧用で、編集は設定ファイルで行います。詳しい診断には<code>claude --debug</code>を使います。</p>
+      </article>
+      <article>
+        <h2><code>/plugin</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li><code>/plugin marketplace add</code>でマーケットプレイスを登録</li><li><code>/plugin install</code>でプラグインを導入</li><li><code>/reload-plugins</code>で導入内容を反映</li></ul>
+        <h3>使いどころ</h3><ul><li>コマンド・Hook・Skillをまとめて導入したいとき</li></ul>
+        <p class="note">引数なしで<code>/plugin</code>を実行すると、画面操作でマーケットプレイスからプラグインを選んで導入できます。おすすめは<a href="#p-plugins">プラグイン一覧</a>を参照してください。</p>
+      </article>
+      <article>
+        <h2><code>/agents</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>利用できるサブエージェントを確認・管理</li></ul>
+        <h3>使いどころ</h3><ul><li><code>.claude/agents/</code>に定義した専門エージェントの確認</li><li>プラグインで追加されたサブエージェントの確認</li></ul>
+        <p class="note">codex-plugin-ccを導入すると、<code>codex:codex-rescue</code>サブエージェントが追加されます。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">開発ワークフロー</h2>
+    <div class="grid">
+      <article>
+        <h2><code>/goal</code></h2><p class="maker">標準コマンド</p>
+        <h3>できること</h3><ul><li>完了条件を満たすまで「実行 → 確認 → 改善」を繰り返させる</li></ul>
+        <h3>使いどころ</h3><ul><li>Webサイト制作など、ゴールの状態を定義できる作業</li></ul>
+        <p class="note">「トップページが表示できる／問い合わせフォームが動作する／最大20回まで改善」のように、完了条件を具体的に書くことが重要です。</p>
+      </article>
+      <article>
+        <h2><code>/design</code></h2><p class="maker">標準コマンド（Claude Design連携）</p>
+        <h3>できること</h3><ul><li>Claude CodeからClaude Designを呼び出し、UI案の生成・レイアウト検討を行う</li><li>選んだデザインを実装へつなげる</li></ul>
+        <h3>使いどころ</h3><ul><li><code>/design Create an admin dashboard for ...</code>のように画面の目的を伝えて使う</li></ul>
+        <p class="note">環境によっては<code>/design-sync</code>は表示されても<code>/design</code>が表示されないケースが報告されています。</p>
+      </article>
+      <article>
+        <h2><code>/design-sync</code></h2><p class="maker">標準コマンド（Claude Design連携）</p>
+        <h3>できること</h3><ul><li>コード側のデザインシステム／コンポーネントをClaude Designと同期</li></ul>
+        <h3>使いどころ</h3><ul><li>既存のコンポーネントライブラリをClaude Designで使いたいとき</li></ul>
+        <p class="note"><code>/design</code>がデザイン作成の入口なのに対し、<code>/design-sync</code>はデザインシステムの取り込みに使います。</p>
+      </article>
+      <article>
+        <h2><code>/claude-api</code></h2><p class="maker">標準同梱スキル</p>
+        <h3>できること</h3><ul><li>Claude API／Anthropic SDKを使う実装について相談・支援</li></ul>
+        <h3>使いどころ</h3><ul><li>Claude APIを組み込んだアプリを作るとき</li></ul>
+        <p class="note">現在のClaude Codeには同梱されているため、相談するだけなら追加導入は不要です。</p>
+      </article>
+    </div>
+
+    <h2 class="section-title">プラグイン導入で追加されるコマンド</h2>
+    <div class="grid">
+      <article>
+        <h2><code>/codex:*</code></h2><p class="maker">codex-plugin-cc（OpenAI公式）</p>
+        <h3>レビュー・委譲</h3><ul><li><code>/codex:review</code>：差分の読み取り専用レビュー（<code>--base</code>・<code>--background</code>対応）</li><li><code>/codex:adversarial-review</code>：設計判断・トレードオフに異議を唱えるレビュー</li><li><code>/codex:rescue</code>：調査・修正をCodexへ委譲</li><li><code>/codex:transfer</code>：Codex側で続きを行えるスレッドを作成</li></ul>
+        <h3>ジョブ管理・設定</h3><ul><li><code>/codex:status</code>・<code>/codex:result</code>・<code>/codex:cancel</code></li><li><code>/codex:setup</code>：導入・認証確認、レビューゲート切替</li></ul>
+        <p class="note">Claude Code標準のコマンドではなく、codex-plugin-ccの導入が前提です。</p>
+      </article>
+      <article>
+        <h2><code>/ecc:plan</code> ほか</h2><p class="maker">Everything Claude Code（サードパーティ）</p>
+        <h3>できること</h3><ul><li><code>/ecc:plan</code>：要件や仕様に沿った実装計画を立てる</li><li><code>/code-review</code>・<code>/build-fix</code>・<code>/context-budget</code>など</li></ul>
+        <h3>使いどころ</h3><ul><li>計画 → 実装 → テスト → レビューの流れを定型化したいとき</li></ul>
+        <p class="note">ECCはAnthropic公式ではないサードパーティ製の設定集です。</p>
+      </article>
+      <article>
+        <h2><code>/design-docs:create-specs</code></h2><p class="maker">自作プラグインの例</p>
+        <h3>できること</h3><ul><li>自作プラグインのスキルを<code>プラグイン名:スキル名</code>で呼び出す</li></ul>
+        <h3>使いどころ</h3><ul><li>チームで共有する定型作業（設計書作成など）</li></ul>
+        <p class="note">自作したスキルもプラグイン化すると、名前空間付きのコマンドとして呼び出せます。</p>
+      </article>
+    </div>
+
+    <aside class="guide" aria-labelledby="slash-commands--reading-note"><h2 id="slash-commands--reading-note">コマンドの見方</h2><p>「標準コマンド」はClaude Code本体で使えるもの、<code>名前:コマンド</code>形式はプラグインを導入した場合にのみ使えるものです。記事内に登場する<code>/ingest</code>・<code>/query --save</code>・<code>/lint</code>は、サードパーティ製テンプレートをSkillとして導入した場合のコマンドで、標準機能ではありません。コマンドはバージョンや契約プランによって表示されない場合があります。</p></aside>
+    <footer>コマンド名や提供状況は変更される場合があります。最新情報は公式ドキュメントで確認してください。</footer>
+  
+    </section>
+    </main>
+  </div>
+<script>
+(function(){
+  var panels=[].slice.call(document.querySelectorAll('.panel'));
+  var navs=[].slice.call(document.querySelectorAll('[data-target]'));
+  var top=document.getElementById('content');
+  function show(hash,scroll){
+    var id=decodeURIComponent((hash||'').replace(/^#/,''));
+    var el=id?document.getElementById(id):null;
+    var panel=el?el.closest('.panel'):null;
+    if(!panel){panel=panels[0];el=null;}
+    panels.forEach(function(p){p.hidden=(p!==panel);});
+    navs.forEach(function(n){
+      var on=n.getAttribute('data-target')===panel.id;
+      n.setAttribute('aria-current',on?'page':'false');
+      if(n.getAttribute('role')==='tab'){n.setAttribute('aria-selected',on?'true':'false');n.tabIndex=on?0:-1;}
+    });
+    if(!scroll){return;}
+    if(el&&el!==panel){el.scrollIntoView();}
+    else if(scroll==='initial'){window.scrollTo(0,0);}
+    else if(top&&window.scrollY>top.offsetTop){window.scrollTo(0,top.offsetTop);}
+  }
+  window.addEventListener('hashchange',function(){show(location.hash,true);});
+  show(location.hash,location.hash?'initial':false);
+})();
+</script>
+<script>
+document.querySelectorAll('.panel article pre').forEach(function(pre){
+  var ul=pre.closest('ul');if(ul){ul.classList.add('code-list');}
+  var box=document.createElement('div');box.className='codebox';
+  pre.parentNode.insertBefore(box,pre);box.appendChild(pre);
+  var btn=document.createElement('button');btn.type='button';btn.className='copy';btn.textContent='コピー';
+  btn.addEventListener('click',function(){
+    if(!navigator.clipboard){return;}
+    navigator.clipboard.writeText(pre.textContent).then(function(){
+      btn.textContent='コピーしました';setTimeout(function(){btn.textContent='コピー';},1600);
+    });
+  });
+  box.appendChild(btn);
+});
+</script>
+</body>
+</html>
